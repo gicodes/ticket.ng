@@ -1,0 +1,147 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  name      String
+  email     String    @unique
+  password  String
+  role      Role      @default(USER)
+
+  emailVerifiedAt   DateTime?
+  failedLogins      Int       @default(0)
+  lockedUntil       DateTime?
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  tickets       Ticket[]        @relation("CreatedByUser") // Tickets created by this user
+  assigned      Ticket[]        @relation("AssignedTickets") // Tickets assigned to this user
+  notes         TicketNote[]    @relation("NotesByUser")
+  histories     TicketHistory[] @relation("HistoriesByUser")
+  refreshTokens RefreshToken[]
+}
+
+enum Role {
+  ADMIN
+  AGENT
+  USER
+}
+
+model Client {
+  id        Int       @id @default(autoincrement())
+  name      String
+  email     String?   @unique
+  phone     String?
+  company   String?
+
+  // Relations (unique relation names from User!)
+  tickets   Ticket[]        @relation("CreatedByClient")
+  notes     TicketNote[]    @relation("NotesByClient")
+  histories TicketHistory[] @relation("HistoriesByClient")
+
+  createdAt DateTime    @default(now())
+}
+
+model Ticket {
+  id          Int           @id @default(autoincrement())
+  title       String
+  description String
+  status      TicketStatus   @default(OPEN)
+  priority    TicketPriority @default(MEDIUM)
+  type        TicketType     @default(GENERAL)
+
+  createdBy   User    @relation("CreatedByUser", fields: [createdById], references: [id])
+  createdById Int
+
+  client      Client? @relation("CreatedByClient", fields: [clientId], references: [id])
+  clientId    Int?
+
+  assignedTo  User?   @relation("AssignedTickets", fields: [assignedToId], references: [id])
+  assignedToId Int?
+
+  notes       TicketNote[]
+  history     TicketHistory[]
+
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+  CANCELLED
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum TicketType {
+  GENERAL
+  BUG
+  FEATURE_REQUEST
+  SUPPORT
+  EVENT
+}
+
+model TicketNote {
+  id        Int     @id @default(autoincrement())
+  content   String
+  ticket    Ticket  @relation(fields: [ticketId], references: [id])
+  ticketId  Int
+
+  createdAt DateTime @default(now())
+
+  author   User?   @relation("NotesByUser", fields: [authorId], references: [id])
+  authorId Int?
+
+  client   Client? @relation("NotesByClient", fields: [clientId], references: [id])
+  clientId Int?
+}
+
+model TicketHistory {
+  id         Int     @id @default(autoincrement())
+  action     String
+  oldValue   String?
+  newValue   String?
+  createdAt  DateTime @default(now())
+
+  ticket     Ticket  @relation(fields: [ticketId], references: [id])
+  ticketId   Int
+
+  performedBy  User?   @relation("HistoriesByUser", fields: [performedById], references: [id])
+  performedById Int?
+
+  client       Client? @relation("HistoriesByClient", fields: [clientId], references: [id])
+  clientId     Int?
+}
+
+model RefreshToken {
+  id          Int       @id @default(autoincrement())
+  jti         String    @unique
+  hashedToken String
+  expiresAt   DateTime
+  revokedAt   DateTime?
+  usedAt      DateTime?
+  ip          String?
+  userAgent   String?
+  createdAt   DateTime  @default(now())
+
+  @@index([userId])
+  @@index([jti])
+
+  user   User    @relation(fields: [userId], references: [id])
+  userId Int
+}
