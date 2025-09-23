@@ -57,7 +57,7 @@ const Features = () => {
             <Grid
               key={i}
               container
-              spacing={4}
+              spacing={{xs: 4, sm: 4, md: 4}}
               width={'100%'}
               alignItems="center"
               justifyContent={{ xs: 'center', sm: 'space-around' }}
@@ -65,6 +65,7 @@ const Features = () => {
             >
               <Grid>
                 <motion.div
+                  style={{ overflow: "hidden" }} 
                   initial={{ opacity: 0, x: isEven ? 60 : -60 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.6 }}
@@ -74,8 +75,8 @@ const Features = () => {
                     sx={{
                       borderRadius: 5,
                       minHeight: 300,
-                      width: "fit-content",
-                      minWidth: { xs: 300, sm: 360, md: 420, lg: 500},
+                      width: "100%",
+                      minWidth: { xs: 300, sm: 360, md: 420, lg: 500 },              
                       backgroundSize: "cover",
                       backgroundPosition: "center",
                       backgroundImage: `url(${f.imageUrl})`,
@@ -93,11 +94,12 @@ const Features = () => {
                     elevation={0}
                     sx={{
                       py: 3,
-                      px: 4,
+                      px: 1,
                       borderRadius: "16px",
                       bgcolor: "transparent",
                       color: "inherit",
-                      maxWidth: { xs: 'none', sm: 300, md: 360, lg: 420 }
+                      width: '100%',
+                      maxWidth: { xs: 'none', sm: 500, md: 360, lg: 420 }
                     }}
                   >
                     <Stack direction="row" gap={2} mb={2} alignItems="center">
