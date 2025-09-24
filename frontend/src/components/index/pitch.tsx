@@ -6,7 +6,7 @@ const pitchpoints = [
   {
     icon: "3+",
     title: "Use Cases",
-    description: "Create New Ticket as Task, Issue or Invoice",
+    description: "Create Ticket as either Task, Issue or Invoice",
     color: "gray"
   },
   {
@@ -27,7 +27,7 @@ const IndexPitch = () => {
   return (
     <Container>
       <Stack textAlign={'center'} display={'grid'} gap={5}>
-        <Typography fontFamily={'sans'} variant='h5'>Never miss a task, routine or opportunity to get your <span className='custom-dull font-md'>$</span>hit together</Typography>
+        <Typography fontFamily={'sans'} variant='h5'>Never miss a task, routine or opportunity to get your <span className='custom-dull font-md'><strong>$</strong></span>hit together</Typography>
         <Box 
           display={'flex'}
           justifyContent={'center'}
