@@ -39,3 +39,12 @@ export const completeTicket = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Failed to mark ticket as complete" });
   }
 };
+
+export const getAllTickets = async (res: Response) => {
+  try {
+    const allTickets = await prisma.ticket.findMany();
+    res.json(allTickets);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch tickets" });
+  }
+}

@@ -8,6 +8,9 @@ export type User = {
   name: string;
   email: string;
   role: Role;
+  admin?: { 
+    level: any
+  }
   emailVerifiedAt?: string;
   failedLogins: number;
   lockedUntil?: string;

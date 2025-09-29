@@ -51,8 +51,6 @@ services:
       - backend
     ports:
       - "3000:3000"
-    volumes:
-      - ./frontend:/app
     environment:
       - NEXT_PUBLIC_API_URL=http://localhost:4000
 
