@@ -56,7 +56,6 @@ export const login = async (req: Request, res: Response) => {
     return res.status(401).json({ message: "Invalid credentials" });
   }
 
-  // success → reset counters
   await prisma.user.update({
     where: { id: user.id },
     data: { failedLogins: 0, lockedUntil: null }
@@ -84,7 +83,7 @@ export const refresh = async (req: Request, res: Response) => {
   const raw = req.cookies?.refresh_token;
   if (!raw) return res.status(401).json({ message: "Missing refresh token" });
 
-  const payload = verifyRefresh(raw); // throws if invalid/expired
+  const payload = verifyRefresh(raw);
 
   const record = await prisma.refreshToken.findUnique({ where: { jti: payload.jti }});
   if (!record) return res.status(401).json({ message: "Unknown token" });
@@ -92,7 +91,6 @@ export const refresh = async (req: Request, res: Response) => {
     return res.status(401).json({ message: "Token no longer valid" });
   }
 
-  // rotate: invalidate used token
   await prisma.refreshToken.update({
     where: { jti: payload.jti },
     data: { usedAt: new Date() }
