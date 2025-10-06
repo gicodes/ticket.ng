@@ -1,7 +1,7 @@
 import { prisma } from "../../lib/prisma";
 import { Request, Response } from "express";
-import { registerSchema, loginSchema } from "../../validators/auth.schema";
-import { hashPassword, comparePassword, hashToken } from "../../lib/crypto";
+import { loginSchema } from "../../validators/auth.schema";
+import { comparePassword, hashToken } from "../../lib/crypto";
 import { 
   signAccess, 
   signRefresh, 
@@ -9,29 +9,6 @@ import {
   verifyRefresh, 
   cookieOptions 
 } from "../../lib/jwt";
-import jwt from "jsonwebtoken";
-import { transporter } from "../webhooks/api";
-
-export const register = async (req: Request, res: Response) => {
-  const data = registerSchema.parse(req.body);
-  const exists = await prisma.user.findUnique({ where: { email: data.email }});
-  if (exists) return res.status(409).json({ message: "Email already in use" });
-
-  const password = await hashPassword(data.password);
-  const user = await prisma.user.create({
-    data: { name: data.name, email: data.email, password, role: "USER" }
-  });
-
-  const token = generateEmailToken(user.id);
-    const url = `${process.env.FRONTEND_URL}/verify?token=${token}`;
-    await transporter.sendMail({
-      to: user.email,
-      subject: "Verify your account",
-      text: `Click here to verify: ${url}`,
-    });
-
-  res.status(201).json({ id: user.id, email: user.email, name: user.name });
-};
 
 export const login = async (req: Request, res: Response) => {
   const { email, password } = loginSchema.parse(req.body);
@@ -58,8 +35,10 @@ export const login = async (req: Request, res: Response) => {
 
   await prisma.user.update({
     where: { id: user.id },
-    data: { failedLogins: 0, lockedUntil: null }
-  });
+    data: { failedLogins: 0, 
+    lockedUntil: null 
+  }
+});
 
   const access = signAccess({ sub: user.id, role: user.role });
   const { token: refresh, jti, exp } = signRefresh({ sub: user.id });
@@ -125,12 +104,4 @@ export const logout = async (req: Request, res: Response) => {
   }
   res.clearCookie("refresh_token", cookieOptions());
   res.status(204).send();
-};
-
-export const generateEmailToken = (userId: number) => {
-  return jwt.sign({ sub: userId }, process.env.JWT_EMAIL_SECRET!, { expiresIn: "1d" });
-};
-
-export const verifyEmailToken = (token: string) => {
-  return jwt.verify(token, process.env.JWT_EMAIL_SECRET!);
 };

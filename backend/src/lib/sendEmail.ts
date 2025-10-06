@@ -9,7 +9,6 @@ type SendEmailProps = {
 
 export async function sendEmail(
   {
-    from,
     to,
     subject,
     html

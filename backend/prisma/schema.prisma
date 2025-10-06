@@ -9,7 +9,6 @@ generator client {
 
 enum Role {
   ADMIN
-  AGENT
   USER
 }
 
@@ -62,6 +61,7 @@ model User {
   password String
   role     Role   @default(USER)
 
+  isVerified      Boolean   @default(false)
   emailVerifiedAt DateTime?
   failedLogins    Int       @default(0)
   lockedUntil     DateTime?
