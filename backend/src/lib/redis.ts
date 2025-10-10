@@ -32,7 +32,10 @@ export const Redis = {
   },
   async expire(key: string, seconds: number) {
     return client.expire(key, seconds);
-  }
+  },
+  async keys(pattern: string) {
+    return client.keys(pattern);
+  },
 };
 
 export default Redis;

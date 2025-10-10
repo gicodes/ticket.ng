@@ -8,7 +8,6 @@ import { hashPassword } from "../../../lib/crypto";
 
 export const verifyEmail = async (req: Request, res: Response) => {
   try {
-    console.log('hi');
     const { email, role, name, password } = req.body;
     if (!email || !role)
       return res.status(400).json({ message: "Email and role are required" });
@@ -51,6 +50,7 @@ export const verifyEmail = async (req: Request, res: Response) => {
 
 export const confirmEmailVerification = async (req: Request, res: Response) => {
   try {
+    console.log('hi')
     const { token } = req.body;
     if (!token)
       return res.status(400).json({ message: "Verification token missing" });
@@ -146,5 +146,48 @@ export const confirmEmailVerification = async (req: Request, res: Response) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const resendVerificationEmail = async (req: Request, res: Response) => {
+  try {
+    const { email, role } = req.body;
+    if (!email || !role) {
+      return res.status(400).json({ message: "Email and role are required" });
+    }
+
+    const existing = await Redis.keys(`verify:*`);
+    const tokenKey = existing.find(async (key) => {
+      const cached = await Redis.get(key);
+      if (!cached) return false;
+      const parsed = JSON.parse(cached);
+      return parsed.email === email && parsed.role === role;
+    });
+
+    const token = crypto.randomBytes(32).toString("hex");
+    await Redis.setEx(`verify:${token}`, 900, JSON.stringify({ email, role }));
+
+    const link = `${process.env.FRONTEND_URL}/verify?token=${token}`;
+
+    await sendEmail({
+      to: email,
+      subject: "Resend: Verify your TicTask email",
+      html: `
+        <div style="font-family:sans-serif;">
+          <h2>Welcome back to TicTask</h2>
+          <p>Click below to verify your email address:</p>
+          <a href="${link}" 
+             style="background:#0070f3;color:white;padding:10px 20px;border-radius:6px;text-decoration:none;">
+             Verify Email
+          </a>
+          <p>This link expires in 15 minutes.</p>
+        </div>
+      `,
+    });
+
+    return res.status(200).json({ message: "Verification email resent successfully" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Server error" });
   }
 };

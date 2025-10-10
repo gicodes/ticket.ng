@@ -54,6 +54,11 @@ enum TicketType {
   EVENT
 }
 
+enum UserType {
+  PERSONAL
+  BUSINESS
+}
+
 model User {
   id       Int    @id @default(autoincrement())
   name     String
@@ -65,6 +70,17 @@ model User {
   emailVerifiedAt DateTime?
   failedLogins    Int       @default(0)
   lockedUntil     DateTime?
+
+  userType     UserType     @default(PERSONAL)
+  country      String?
+  phone        String?
+  bio          String?
+  photo        String? 
+  organization String?
+  industry     String?
+  teamSize     String?
+  website      String?
+  logo         String? 
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
