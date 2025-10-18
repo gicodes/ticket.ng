@@ -13,10 +13,11 @@ const useAuth = () => {
   return { isLoggedIn };
 };
 
-type LinkItem = {
+export type LinkItem = {
   label: string;
   href: string;
   cta?: boolean;
+  disabled?: boolean;
 };
 
 const Header = () => {
@@ -119,7 +120,7 @@ const Header = () => {
             sx={{ display: { xs: "flex", md: "none" } }} 
             onClick={toggleDrawer}
           >
-            <MenuIcon color="inherit" />
+            <MenuIcon className="custom-bw" />
           </IconButton>
         </Toolbar>
 
@@ -127,6 +128,7 @@ const Header = () => {
           anchor="right" 
           open={mobileOpen} 
           onClose={toggleDrawer}
+          sx={{ bgcolor: 'inherit'}}
         >
           <Box sx={{ p: 2, width: '100vw' }}>
             <Box 
@@ -162,7 +164,7 @@ const Header = () => {
                     href={link.href}
                     onClick={toggleDrawer}
                     style={{ width: '100%', textAlign: 'center'}}
-                    className={link.cta ? styles.btnPrimary : ''}
+                    className={link.cta ? styles.btnRetreat : ''}
                   >
                     {link.label}
                   </Link>
