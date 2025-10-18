@@ -11,3 +11,15 @@ export interface VerifyEmailResponse {
   role?: "ADMIN" | "USER";
   email?: string;
 }
+
+export interface ConfirmVerificationRequest {
+  token: string;
+}
+
+export interface ConfirmVerificationResponse {
+  message: string;
+  redirect?: string;
+  role?: "ADMIN" | "USER";
+  email?: string;
+  token?: string;
+}

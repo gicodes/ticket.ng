@@ -1,25 +1,26 @@
+import { composeEmailTemplate } from "../../lib/emailTemp";
+import { transporter } from "../../lib/sendEmail";
 import { Request, Response } from "express";
-import nodemailer from "nodemailer";
 import twilio from "twilio";
-
-export const transporter = nodemailer.createTransport({
-  host: process.env.MAIL_HOST,
-  port: 587,
-  auth: {
-    user: process.env.MAIL_USER,
-    pass: process.env.MAIL_PASS,
-  },
-});
 
 export const sendEmail = async (req: Request, res: Response) => {
   try {
-    const { to, subject, text } = req.body;
+    const { to, subject, title, subtitle, body1, body2,  } = req.body;
     await transporter.sendMail({
-      from: `"Teaketing App" <${process.env.MAIL_USER}>`,
-      to,
-      subject,
-      text,
-    });
+      from: `"TicTask - Naija's Best Ticketing App" <${process.env.MAIL_USER}>`,
+       to,
+        subject,
+        html: composeEmailTemplate({
+          subject,
+          title,
+          subtitle,
+          body1,
+          body2,
+          closingRemark: `
+            <p>Warm regards,<br/>The TicTask Team</p>
+          `
+        }),
+    });   
     res.json({ success: true });
   } catch (err: any) {
     res.status(500).json({ error: err.message });

@@ -1,12 +1,15 @@
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import Redis from "../../../lib/redis";
+
 import { Request, Response } from "express";
 import { prisma } from "../../../lib/prisma";
+import { signAccess } from "../../../lib/jwt";
 import { sendEmail } from "../../../lib/sendEmail";
 import { hashPassword } from "../../../lib/crypto";
+import { composeEmailTemplate } from "../../../lib/emailTemp";
 
-export const verifyEmail = async (req: Request, res: Response) => {
+export const sendVerificationEmail = async (req: Request, res: Response) => {
   try {
     const { email, role, name, password } = req.body;
     if (!email || !role)
@@ -17,8 +20,16 @@ export const verifyEmail = async (req: Request, res: Response) => {
 
     const token = crypto.randomBytes(32).toString("hex");
 
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser && role ==="ADMIN") {
+      return res.status(419).json({ message: "Email cannot be created!"});
+    }
+    if (existingUser && role === "USER") {
+      return res.status(409).json({ message: "Email already registered"})
+    }
+
     await Redis.setEx(
-      `verify:${token}`,
+      `verify-email:${token}`,
       900,
       JSON.stringify({ email, role, name, password })
     );
@@ -28,17 +39,17 @@ export const verifyEmail = async (req: Request, res: Response) => {
     await sendEmail({
       to: email,
       subject: "Verify your TicTask email",
-      html: `
-        <div style="font-family:sans-serif;">
-          <h2>Welcome to TicTask</h2>
-          <p>Click below to verify your email address:</p>
-          <a href="${link}" 
-             style="background:#0070f3;color:white;padding:10px 20px;border-radius:6px;text-decoration:none;">
-             Verify Email
-          </a>
+      html: composeEmailTemplate({
+        subject: "Verify your TicTask email",
+        body1: `
+          <p>Hi${name ? ` ${name}` : ''},</p>
+          <p>Thank you for signing up for TicTask. Please click the button below to verify your email address and get started:</p>
+          <a href="${link}" class="button">&nbsp; Verify Email &nbsp;</a>
           <p>This link expires in 15 minutes.</p>
-        </div>
-      `,
+        `,
+        body2: `<p>If you did not sign up for a TicTask account, you can safely ignore this email.</p>`,
+        closingRemark: `<p>Let's go! 🔥<br/>The TicTask Team</p>`
+      }), 
     });
 
     return res.status(200).json({ message: "Verification email sent" });
@@ -50,25 +61,30 @@ export const verifyEmail = async (req: Request, res: Response) => {
 
 export const confirmEmailVerification = async (req: Request, res: Response) => {
   try {
-    console.log('hi')
     const { token } = req.body;
-    if (!token)
+    if (!token) {
       return res.status(400).json({ message: "Verification token missing" });
+    }
 
-    const cached = await Redis.get(`verify:${token}`);
-    if (!cached)
+    const cached = await Redis.get(`verify-email:${token}`);
+    if (!cached) {
       return res.status(400).json({ message: "Invalid or expired link" });
+    }
 
     const data = JSON.parse(cached);
     const { email, role, name, password } = data;
+    console.log(email)
 
-    let user;
-
+    // ADMIN
+    // set up admin account
     if (role === "ADMIN") {
+      console.warn("High-level superuser activity registered!");
       const passwordHash = await bcrypt.hash(password, 10);
 
-      user = await prisma.user.create({
-        data: {
+      await prisma.user.upsert({
+        where: { email },
+        update: { isVerified: true },
+        create: {
           email,
           name,
           password: passwordHash,
@@ -76,23 +92,24 @@ export const confirmEmailVerification = async (req: Request, res: Response) => {
           isVerified: true,
         },
       });
-
-      await Redis.del(`verify:${token}`);
+      await Redis.del(`verify-email:${token}`);
 
       await sendEmail({
         to: email,
-        subject: "TicTask Admin Account is Verified",
-        html: `
-          <div style="font-family:sans-serif;">
-            <h2>Hi ${name}</h2>
-            <p>Your TicTask admin account has been successfully verified.
-              You can now log in to your dashboard and manage your workspace.</p>
-            <a href="/dashboard" 
-              style="background:#0070f3;color:white;padding:10px 20px;border-radius:6px;text-decoration:none;">
-              Dashboard →
+        subject: "TicTask Admin Account Verified",
+        html: composeEmailTemplate({
+          subject: "TicTask Admin Account Verified",
+          title: "Your Admin Account is Ready",
+          body1: `
+            <p>Hi ${name},</p>
+            <p>Your admin account has been successfully created and verified.</p>
+            <p>You can now log in to your account:</p>
+            <a href="${process.env.FRONTEND_URL}/auth/login/admin" class="button">
+              Go to Admin Login →
             </a>
-          </div>
-        `,
+          `,
+          body2: `<p>If this wasn’t you, contact support immediately.</p>`
+        }),
       });
 
       return res.status(200).json({
@@ -103,49 +120,79 @@ export const confirmEmailVerification = async (req: Request, res: Response) => {
       });
     }
 
+    // User
+    // if existing, redirect to onboarding
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser) {
+      console.warn("This User record exists in DB");
+      const payload = { sub: existingUser.id, role: existingUser.role };
+      const accessToken = signAccess(payload);
+
+      return res.status(409).json({
+        message: "Email already registered",
+        redirect: `/onboarding?role=${existingUser.role}&token=${(accessToken)}`,
+        email,
+        token: accessToken,
+        role: existingUser.role,
+      });
+    }
+
+    // User
+    // if new, create record and send to onboarding
     if (role === "USER") {
+      console.log("Creating new USER record in DB with autogenerated password");
       const tempPassword = crypto.randomBytes(8).toString("hex");
       const passwordHash = await hashPassword(tempPassword);
-      user = await prisma.user.create({
-        data: {
+
+      const user = await prisma.user.upsert({
+        where: { email },
+        update: { isVerified: true },
+        create: {
           email,
-          name: '',
+          name: name || "",
           role: "USER",
           isVerified: true,
-          password: passwordHash
+          password: passwordHash,
         },
       });
 
-      await Redis.expire(`verify:${token}`, 900);
+      await Redis.del(`verify:${token}`);
+
+      const payload = { sub: user.id, role: user.role };
+      const accessToken = signAccess(payload);
+      const link = `${process.env.FRONTEND_URL}/onboarding?token=${accessToken}`
 
       await sendEmail({
         to: email,
-        subject: "Set your TicTask password",
-        html: `
-          <div style="font-family:sans-serif;">
-            <h2>Welcome to TicTask</h2>
+        subject: "Welcome to TicTask - Set Your Password",
+        html: composeEmailTemplate({
+          subject: "Welcome to TicTask - Set Your Password",
+          title: "Email Verified!",
+          subtitle: "Set your password to continue onboarding",
+          body1: `
+            <p>Hi ${name || ""},</p>
             <p>Your email has been verified successfully.</p>
-            <p>Please set your password to continue your onboarding:</p>
-            <a href="${process.env.FRONTEND_URL}/reset-password?token=${token}"
-              style="background:#0070f3;color:white;padding:10px 20px;border-radius:6px;text-decoration:none;">
-              Set Password
+            <p>Click below to set your password:</p>
+            <a class="button" href="${link}">
+              Set Password →
             </a>
-            <p>This link expires in 15 minutes.</p>
-          </div>
-        `
+          `,
+          body2: `<p>If this wasn’t you, please contact our support team immediately.</p>`,
+        }),
       });
 
       return res.status(200).json({
-        message: "User email verified, proceed to onboarding",
-        redirect: "/auth/onboarding",
+        message: "User verified, proceed to onboarding",
+        redirect: `/onboarding?email=${encodeURI(email)}&token=${encodeURIComponent(accessToken)}`,
         role: "USER",
         email,
+        token: accessToken,
       });
     }
     return res.status(400).json({ message: "Invalid role" });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
+    console.error("confirmEmailVerification error:", err);
+    return res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -161,9 +208,17 @@ export const resendVerificationEmail = async (req: Request, res: Response) => {
       const cached = await Redis.get(key);
       if (!cached) return false;
       const parsed = JSON.parse(cached);
+
       return parsed.email === email && parsed.role === role;
     });
 
+    if (tokenKey) {
+      const ttl = await Redis.ttl(tokenKey);
+      if (ttl && ttl > 0) {
+        return res.status(429).json({ message: `Please wait ${ttl} seconds before requesting a new verification email` });
+      }
+    }
+    
     const token = crypto.randomBytes(32).toString("hex");
     await Redis.setEx(`verify:${token}`, 900, JSON.stringify({ email, role }));
 
@@ -172,17 +227,18 @@ export const resendVerificationEmail = async (req: Request, res: Response) => {
     await sendEmail({
       to: email,
       subject: "Resend: Verify your TicTask email",
-      html: `
-        <div style="font-family:sans-serif;">
-          <h2>Welcome back to TicTask</h2>
-          <p>Click below to verify your email address:</p>
-          <a href="${link}" 
-             style="background:#0070f3;color:white;padding:10px 20px;border-radius:6px;text-decoration:none;">
-             Verify Email
-          </a>
+      html: composeEmailTemplate({
+        subject: "Resend: Verify your TicTask email",
+        title: "Verify your TicTask email",
+        body1: `
+          <p>Hello,</p>
+          <p>You requested to resend the verification email. Please click the button below to verify your email address and get started:</p>
+          <a href="${link}">Verify Email</a>
           <p>This link expires in 15 minutes.</p>
-        </div>
-      `,
+        `,
+        body2: `<p>If you did not request this email, you can safely ignore it.</p>`,
+        closingRemark: `<p>All the best!<br/>The TicTask Team</p>`
+      }),
     });
 
     return res.status(200).json({ message: "Verification email resent successfully" });

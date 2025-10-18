@@ -1,16 +1,31 @@
-export type Role = 'ADMIN' | 'AGENT' | 'USER';
+export type Role = 'ADMIN' | 'USER';
 export type Plan = 'FREE' | 'STANDARD' | 'PRO' | 'ENTERPRISE';
 export type TeamRole = 'OWNER' | 'ADMIN' | 'MEMBER';
 export type AdminLevel = 'BASIC' | 'FULL' | 'SUPER';
+export type UserType = 'PERSONAL' | 'BUSINESS';
 
 export type User = {
   id: number;
   name: string;
   email: string;
   role: Role;
+  userType: UserType;
+
+  isVerified: boolean;
   emailVerifiedAt?: string;
   failedLogins: number;
   lockedUntil?: string;
+
+  country: string;
+  phone: string;
+
+  bio?: string;
+  photo?: string;
+  organization?: string;
+  industry?: string;
+  teamSize?: string;
+  website?: string;
+  logo?: string;
 
   createdAt: string;
   updatedAt: string;

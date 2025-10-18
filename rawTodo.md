@@ -1,21 +1,25 @@
 Next_ (BE, self)
-- Distinguish between NextAuth and Express auth 
+- Distinguish between NextAuth and Express auth ✅
 - Next API: (post, '/faq'), add faq question
 - Next API: (get, '/faq'), fetch faq questions-
-- Write heavyweight protocols on Express API 
+- Write heavyweight protocols on Express API ✅
 - Express API: (CRUD, '/dasboard/*)
+- Settle change password via onboarding, email link
 
 Previous_ (BE, self)
 - Next API: nextauth, authOptions, etc
 - API: auth (may interfere with NextAuth. See Next_ actions[0])
 - API: tickets
 - API: webhooks/*email, slack
+-
+-
+-
 
 Next_ (FE, self)
-- /src/providers/notifications (optional)
-- /src/providers/tickets (optional)
-- /src/app/auth/login    (menu link)   
-- /src/app/auth/join     (menu link)   
+- /src/providers/notifications (optional) ✅
+- /src/providers/tickets (optional) ✅
+- /src/app/auth/login    (menu link) ✅
+- /src/app/auth/join     (menu link) ✅
 - /src/app/product       (menu link)  
 - /src/app/resources     (menu link)   
 - /src/app/company       (menu link) 
@@ -63,6 +67,11 @@ Previous_ (FE, self)
 - /src/providers/footer.tsx (99%)
 - /src/app/layout.tsx (80%)
 - /src/app/dashboard/layout.tsx (95%)
+-
+-
+-
+-
+-
 
 
 Next__ (others)

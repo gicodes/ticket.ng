@@ -26,14 +26,21 @@ export const inviteTeamMember = async (req: Request, res: Response) => {
       subject: "Join Your Team on TicTask",
       html: composeEmailTemplate({
         subject: "Join Your Team on TicTask",
-        bodyHtml: `
+        title: "You're Invited to Join a Team on TicTask!",
+        subtitle: "Click the link below to accept the invitation",
+        body1: `
           <p>Hello,</p>
-          <p>You’ve been invited to join your team on <b>TicTask</b>.</p>
-          <a href="${process.env.FRONTEND_URL}/team/invite/${token}" class="button">
-            Accept Invitation
+          <p>You have been invited to join a team on TicTask. Click the button below to accept the invitation and get started:</p>
+          <a href="${process.env.FRONTEND_URL}/accept-invite?token=${token}">
+            Accept Invitation →
           </a>
-          <p>If you didn’t expect this invitation, you can safely ignore this email.</p>
         `,
+        body2: `
+          <p>If you did not expect this invitation, you can safely ignore this email.</p>
+        `,
+        closingRemark: `
+          <p>Goodluck!,<br/>The TicTask Team</p>
+        `
       }),
     });
 

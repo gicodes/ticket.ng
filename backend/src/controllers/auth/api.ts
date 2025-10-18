@@ -1,3 +1,4 @@
+import jwt from "jsonwebtoken";
 import { prisma } from "../../lib/prisma";
 import { Request, Response } from "express";
 import { loginSchema } from "../../validators/auth.schema";
@@ -104,4 +105,13 @@ export const logout = async (req: Request, res: Response) => {
   }
   res.clearCookie("refresh_token", cookieOptions());
   res.status(204).send();
+};
+
+
+export const generateEmailToken = (userId: number) => {
+  return jwt.sign({ sub: userId }, process.env.JWT_EMAIL_SECRET!, { expiresIn: "1d" });
+};
+
+export const verifyEmailToken = (token: string) => {
+  return jwt.verify(token, process.env.JWT_EMAIL_SECRET!);
 };

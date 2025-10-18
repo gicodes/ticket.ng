@@ -7,17 +7,17 @@ import { onboarding } from "../../controllers/auth/user/onboarding/api";
 import { resetPassword } from "../../controllers/auth/reset-password/api";
 import { forgotPassword } from "../../controllers/auth/forgot-password/api";
 import { 
-  verifyEmail,
+  sendVerificationEmail,
   resendVerificationEmail, 
   confirmEmailVerification, 
 } from "../../controllers/auth/verify-email/api";
 
 const router = Router();
 
-router.post("/verify-email", verifyEmail);
-router.post("/auth/resend-verification", resendVerificationEmail);
+router.post("/verify-email", sendVerificationEmail);
+router.post("/resend-verification", resendVerificationEmail);
 router.post("/confirm-verification", confirmEmailVerification);
-router.post("/onboarding", onboarding);
+router.post("/onboarding", requireAuth, onboarding);
 
 router.get("/admin/ping", requireAuth, requireRole("ADMIN"), (req, res) => res.json({ ok: true }));
 

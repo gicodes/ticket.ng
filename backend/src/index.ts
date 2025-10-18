@@ -4,9 +4,9 @@ import cors from "cors";
 import express from "express";
 import { json } from "body-parser";
 import cookieParser from "cookie-parser";
-
 import authRoutes from "./routes/auth/route";
 import teamsRoutes from "./routes/team/route";
+import adminRoutes from "./routes/admin/route";
 import ticketRoutes from "./routes/tickets/route";
 import webhookRoutes from "./routes/webhooks/route";
 
@@ -15,8 +15,7 @@ dotenv.config();
 const app = express();
 
 const allowedOrigins = [
-  "http://localhost:3000",
-  process.env.FRONTEND_URL || "",
+  "http://localhost:3000", process.env.FRONTEND_URL || "",
 ].filter(Boolean);
 
 app.use(
@@ -37,6 +36,7 @@ app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/teams", teamsRoutes);
+app.use("/api/admin", adminRoutes);
 app.use("/api/tickets", ticketRoutes);
 app.use("/api/webhooks", webhookRoutes);
 

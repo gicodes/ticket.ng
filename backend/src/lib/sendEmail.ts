@@ -1,4 +1,13 @@
-import { transporter } from "../controllers/webhooks/api";
+import nodemailer from "nodemailer";
+
+export const transporter = nodemailer.createTransport({
+  host: process.env.MAIL_HOST,
+  port: 587,
+  auth: {
+    user: process.env.MAIL_USER,
+    pass: process.env.MAIL_PASS,
+  },
+});
 
 type SendEmailProps = {
   from?: string;
@@ -16,7 +25,7 @@ export async function sendEmail(
 ) {
   try {
     await transporter.sendMail({
-      from: `"Teaketing App" <${process.env.MAIL_USER}>`,
+      from: `"TicTask - The new trello" <${process.env.MAIL_USER}>`,
       to,
       subject,
       html,

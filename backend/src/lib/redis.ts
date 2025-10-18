@@ -21,6 +21,10 @@ export const Redis = {
   async del(key: string) {
     return client.del(key);
   },
+  async delAll(...keys: string[]) {
+    if (keys.length === 0) return 0;
+    return client.del(keys as [string, ...string[]]);
+  },
   async exists(key: string) {
     return client.exists(key);
   },
@@ -36,6 +40,9 @@ export const Redis = {
   async keys(pattern: string) {
     return client.keys(pattern);
   },
+  async ttl(key: string) {
+    return client.ttl(key);
+  }
 };
 
 export default Redis;

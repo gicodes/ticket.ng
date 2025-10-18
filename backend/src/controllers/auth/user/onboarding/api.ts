@@ -1,9 +1,11 @@
-import { Request, Response } from "express";
-import Redis from "../../../../lib/redis";
-import { prisma } from "../../../../lib/prisma";
 import crypto from "crypto";
+import Redis from "../../../../lib/redis";
+import { Request, Response } from "express";
+import { prisma } from "../../../../lib/prisma";;
+import { signAccess } from "../../../../lib/jwt";
 import { sendEmail } from "../../../../lib/sendEmail";
 import { hashPassword } from "../../../../lib/crypto";
+import { composeEmailTemplate } from "../../../../lib/emailTemp"
 
 export const onboarding = async (req: Request, res: Response) => {
   try {
@@ -18,15 +20,32 @@ export const onboarding = async (req: Request, res: Response) => {
     await Redis.hSet(redisKey, step.toString(), JSON.stringify(data));
     await Redis.expire(redisKey, 3600);
 
+    if (step === 1) {
+      const { password } = data as { password: string };
+  
+      const hashed = await hashPassword(password);
+      await prisma.user.update({
+        where: { id: userId },
+        data: { password: hashed },
+      });
+    }
+
+    if (step < 1 || step > 3) {
+      return res.status(400).json({ message: "Invalid step" });
+    }
+
     if (step === 3) {
       const stepsData = await Redis.hGetAll(redisKey);
 
       const merged = Object.values(stepsData)
         .map((v) => JSON.parse(v))
         .reduce((acc, curr) => ({ ...acc, ...curr }), {});
+      
+      const userRecord = await prisma.user.findUnique({ where: { id: userId } });
+      const email = userRecord?.email;
+      if (!email) return res.status(400).json({ message: "User email missing" });
 
       const {
-        email,
         name,
         orgName,
         country,
@@ -54,42 +73,71 @@ export const onboarding = async (req: Request, res: Response) => {
         },
       });
 
-      const token = crypto.randomBytes(32).toString("hex");
-      const hashedToken = await hashPassword(token);
-      const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+      const accessToken = signAccess({ sub: user.id, role: user.role });
+      const refreshToken = crypto.randomBytes(32).toString("hex");
+      const hashedRefresh = await hashPassword(refreshToken);
+
+      const refreshExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
 
       await prisma.refreshToken.create({
         data: {
           jti: crypto.randomUUID(),
-          hashedToken,
-          expiresAt,
+          hashedToken: hashedRefresh,
+          expiresAt: refreshExpiresAt,
           userId: user.id,
         },
       });
 
+      res.cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 15 * 60 * 1000, // 15 min
+      });
+
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      });
+
       await sendEmail({
         to: email,
-        subject: "Set your TicTask password",
-        html: `
-          <div style="font-family:sans-serif;">
-            <h2>Welcome to TicTask</h2>
-            <p>Your email has been verified successfully.</p>
-            <p>Please set your password to continue your onboarding:</p>
-            <a href="${process.env.FRONTEND_URL}/reset-password?token=${token}"
-              style="background:#0070f3;color:white;padding:10px 20px;border-radius:6px;text-decoration:none;">
-              Set Password
-            </a>
-            <p>This link expires in 15 minutes.</p>
-          </div>
-        `,
+        subject: "Onboarding Complete. Welcome Aboard!",
+        html: composeEmailTemplate({
+          subject: "Onboarding Complete. Welcome Aboard!",
+          title: "Welcome Aboard!",
+          subtitle: "Your TicTask onboarding is complete",
+          body1: `
+            <p>Hi ${name || orgName || ""},</p>
+            <p>Your onboarding is complete — you can now start being productive with TicTask!</p>
+            <p>Click below to access your dashboard:</p>
+            <a href="${process.env.FRONTEND_URL}/dashboard" class="button">Go to Dashboard</a>
+          `,
+          body2: `<p>If you did not expect this email, please contact our support team immediately.</p>`,
+          closingRemark: `<p>All the best!,<br/>The TicTask Team</p>`
+        }),
       });
 
       await Redis.del(redisKey);
 
-      return res.json({ message: "Onboarding complete. Email sent.", user });
+      return res.json({
+        message: "Onboarding complete. Session created.",
+        redirect: "/dashboard",
+        user: {
+          id: user.id,
+          email: user.email,
+          role: user.role,
+        },
+      });
     }
 
-    return res.json({ message: `Step ${step} saved` });
+    return res.json({
+      message: `Step ${step} saved`,
+      redirect: step < 3 ? `/onboarding?step=${step + 1}` : "/dashboard",
+    });
+
   } catch (err: any) {
     console.error("❌ Onboarding Error:", err);
     return res.status(500).json({ message: "Server error" });
