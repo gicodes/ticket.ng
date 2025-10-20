@@ -3,11 +3,13 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "start": "node dist/index.js",
     "build": "tsc -p .",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "usersdbcleanup": "npx ts-node src/controllers/admin/scripts/cleanup.ts"
   },
   "keywords": [],
   "author": "",
