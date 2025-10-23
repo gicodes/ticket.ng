@@ -3,12 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "start": "node dist/index.js",
     "build": "tsc -p .",
-    "postinstall": "prisma generate",
+    "postinstall": "npx prisma generate",
     "usersdbcleanup": "npx ts-node src/controllers/admin/scripts/cleanup.ts"
   },
   "keywords": [],
@@ -28,10 +27,11 @@
     "redis": "^5.8.2",
     "twilio": "^5.8.2",
     "typescript": "^5.9.2",
+    "prisma": "^6.18.0",
+    "@prisma/client": "^6.18.0",
     "zod": "^4.1.5"
   },
   "devDependencies": {
-    "@prisma/client": "^6.16.2",
     "@types/cookie-parser": "^1.4.9",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
@@ -39,7 +39,6 @@
     "@types/node": "^24.3.0",
     "@types/node-fetch": "^2.6.13",
     "@types/nodemailer": "^7.0.1",
-    "prisma": "^6.16.2",
     "ts-node-dev": "^2.0.0"
   }
 }
