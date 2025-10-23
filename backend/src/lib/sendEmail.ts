@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 
-export const transporter = nodemailer.createTransport({
+const transporter = nodemailer.createTransport({
   host: process.env.MAIL_HOST,
   port: 587,
   auth: {
@@ -25,7 +25,7 @@ export async function sendEmail(
 ) {
   try {
     await transporter.sendMail({
-      from: `"TicTask - The new trello" <${process.env.MAIL_USER}>`,
+      from: `"TicTask - TicTask - Naija's Number One HR App" <${process.env.MAIL_USER}>`,
       to,
       subject,
       html,

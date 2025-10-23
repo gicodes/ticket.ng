@@ -1,8 +1,8 @@
-import { prisma } from "../../../lib/prisma";
+import crypto from "crypto";
 import Redis from "../../../lib/redis";
 import { Request, Response } from "express";
-import crypto from "crypto";
-import { transporter } from "../../webhooks/api";
+import { prisma } from "../../../lib/prisma";
+import { sendEmail } from "../../../lib/sendEmail";
 
 export const forgotPassword = async (req: Request, res: Response) => {
   const { email } = req.body;
@@ -14,7 +14,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
   await Redis.setEx(`reset:${token}`, 60 * 10, user.id.toString());
 
   const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
-  await transporter.sendMail({
+  await sendEmail({
     to: user.email,
     subject: "Reset Your TicTask Password",
     html: `<p>Click to reset your password: <a href="${resetLink}">${resetLink}</a></p>`,

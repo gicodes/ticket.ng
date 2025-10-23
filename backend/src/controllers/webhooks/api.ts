@@ -1,13 +1,13 @@
 import { composeEmailTemplate } from "../../lib/emailTemp";
-import { transporter } from "../../lib/sendEmail";
+import { sendEmail } from "../../lib/sendEmail";
 import { Request, Response } from "express";
 import twilio from "twilio";
 
-export const sendEmail = async (req: Request, res: Response) => {
+export const sendEmailAPI = async (req: Request, res: Response) => {
   try {
     const { to, subject, title, subtitle, body1, body2,  } = req.body;
-    await transporter.sendMail({
-      from: `"TicTask - Naija's Best Ticketing App" <${process.env.MAIL_USER}>`,
+    await sendEmail({
+      from: `"TicTask - Naija's Number One HR App" <${process.env.MAIL_USER}>`,
        to,
         subject,
         html: composeEmailTemplate({
@@ -27,7 +27,7 @@ export const sendEmail = async (req: Request, res: Response) => {
   }
 };
 
-export const sendSlack = async (req: Request, res: Response) => {
+export const sendSlackAPI = async (req: Request, res: Response) => {
   try {
     const { message } = req.body;
 
