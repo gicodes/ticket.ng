@@ -281,7 +281,7 @@ model Changelog {
 model FAQ {
   id          Int      @id @default(autoincrement())
   question    String
-  answer      String
+  answer      String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

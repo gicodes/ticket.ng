@@ -7,7 +7,7 @@ const router = Router();
 
 router.get("/faq", readFAQs);
 router.post("/faq", createFAQ);
-router.delete("/faq", deleteFAQs);
+router.delete("/faq", requireAdmin, deleteFAQs);
 
 router.get("/blog", readBlogs);
 router.post("/blog", requireAuth, createBlog);

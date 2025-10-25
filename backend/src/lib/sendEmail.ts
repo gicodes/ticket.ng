@@ -25,7 +25,7 @@ export async function sendEmail(
 ) {
   try {
     await transporter.sendMail({
-      from: `"TicTask - TicTask - Naija's Number One HR App" <${process.env.MAIL_USER}>`,
+      from: `"TicTask - Naija's Number One HR App" <${process.env.MAIL_USER}>`,
       to,
       subject,
       html,

@@ -123,22 +123,36 @@ export const deleteUpdates = async (req: Request, res: Response) => {
 
 export const createFAQ = async (req: Request, res: Response) => {
   try {
-    const user = (req as any).user;
-    const { question, answer } = req.body;
-    if (!question || !answer)
-      return res.status(400).json({ error: "Question and answer required" });
+    const { question, answer, faqId, user } = req.body;
+    if (question && !faqId) {
+      const faq = await prisma.fAQ.create({
+        data: {
+          question,
+          answer: answer ?? null,
+          createdById: user?.id || null,
+        },
+      });
+      return res.status(201).json({ message: "Question submitted", faq });
+    }
 
-    const faq = await prisma.fAQ.create({
-      data: {
-        question,
-        answer,
-        createdById: user?.id || null,
-      },
-    });
+    if (answer && faqId) {
+      if (!user) return res.status(401).json({ error: "Login required to answer" });
 
-    res.status(201).json({ message: "FAQ created", faq });
+      const faq = await prisma.fAQ.update({
+        where: { id: Number(faqId) },
+        data: { 
+          answer,
+          updatedAt: new Date(),
+        },
+      });
+
+      return res.status(200).json({ message: "Answer added", faq });
+    }
+
+    return res.status(400).json({ error: "Invalid FAQ payload" });
   } catch (err) {
-    res.status(500).json({ error: "Failed to create FAQ" });
+    console.error(err);
+    res.status(500).json({ error: "Failed to create or update FAQ" });
   }
 };
 
@@ -155,11 +169,9 @@ export const readFAQs = async (_req: Request, res: Response) => {
 
 export const deleteFAQs = async (req: Request, res: Response) => {
   try {
-    const { id } = req.body;
-    if (!id) return res.status(400).json({ error: "ID required" });
-
+    const id = Number(req.params.id);
     await prisma.fAQ.delete({ where: { id } });
-    res.json({ success: true, message: "FAQ deleted" });
+    res.status(200).json({ message: "FAQ deleted" });
   } catch (err) {
     res.status(500).json({ error: "Failed to delete FAQ" });
   }
