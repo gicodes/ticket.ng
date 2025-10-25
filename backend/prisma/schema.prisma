@@ -96,6 +96,10 @@ model User {
   assigned  Ticket[]        @relation("AssignedTickets")
   notes     TicketNote[]    @relation("NotesByUser")
   histories TicketHistory[] @relation("HistoriesByUser")
+
+  blogs        Blog[]
+  changelogs   Changelog[]
+  faqs         FAQ[]
 }
 
 model Admin {
@@ -246,4 +250,41 @@ model RefreshToken {
 
   @@index([userId])
   @@index([jti])
+}
+
+model Blog {
+  id          Int      @id @default(autoincrement())
+  title       String
+  slug        String   @unique
+  excerpt     String?
+  content     String
+  coverImage  String?
+  status      String   @default("published")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  authorId    Int?
+  author      User?    @relation(fields: [authorId], references: [id])
+}
+
+model Changelog {
+  id          Int      @id @default(autoincrement())
+  version     String
+  date        DateTime
+  highlights  String[]
+  createdAt   DateTime @default(now())
+
+  createdById Int?
+  createdBy   User?    @relation(fields: [createdById], references: [id])
+}
+
+model FAQ {
+  id          Int      @id @default(autoincrement())
+  question    String
+  answer      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  createdById Int?
+  createdBy   User?    @relation(fields: [createdById], references: [id])
 }

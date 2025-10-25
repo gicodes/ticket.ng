@@ -7,7 +7,7 @@ export const createTicket = async (req: Request, res: Response) => {
     const ticket = await prisma.ticket.create({
       data: { title, description, createdById }
     });
-    res.json(ticket);
+    res.status(201).json({ message: "Ticket Created", ticket});
   } catch (err) {
     res.status(500).json({ error: "Failed to create ticket" });
   }

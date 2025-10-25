@@ -18,8 +18,6 @@ export const sendVerificationEmail = async (req: Request, res: Response) => {
     if (role==='ADMIN' && (!password || !name)) 
       return res.status(403).json({ message: "Data incomplete or invalid" });
 
-    const token = crypto.randomBytes(32).toString("hex");
-
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser && role ==="ADMIN") {
       return res.status(419).json({ message: "Email cannot be created!"});
@@ -27,6 +25,8 @@ export const sendVerificationEmail = async (req: Request, res: Response) => {
     if (existingUser && role === "USER") {
       return res.status(409).json({ message: "Email already registered"})
     }
+
+    const token = crypto.randomBytes(32).toString("hex");
 
     await Redis.setEx(
       `verify-email:${token}`,
@@ -52,7 +52,7 @@ export const sendVerificationEmail = async (req: Request, res: Response) => {
       }), 
     });
 
-    return res.status(200).json({ message: "Verification email sent" });
+    return res.status(201).json({ message: "Verification email sent" });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Server error" });
@@ -111,7 +111,7 @@ export const confirmEmailVerification = async (req: Request, res: Response) => {
         }),
       });
 
-      return res.status(200).json({
+      return res.status(201).json({
         message: "Admin email verified and account created",
         redirect: "/auth/login/admin",
         role: "ADMIN",
@@ -180,7 +180,7 @@ export const confirmEmailVerification = async (req: Request, res: Response) => {
         }),
       });
 
-      return res.status(200).json({
+      return res.status(201).json({
         message: "User verified, proceed to onboarding",
         redirect: `/onboarding?email=${encodeURI(email)}&token=${encodeURIComponent(accessToken)}`,
         role: "USER",
