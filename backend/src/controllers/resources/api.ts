@@ -128,7 +128,7 @@ export const createFAQ = async (req: Request, res: Response) => {
       const faq = await prisma.fAQ.create({
         data: {
           question,
-          answer: answer ?? null,
+          answer: answer ?? '',
           createdById: user?.id || null,
         },
       });

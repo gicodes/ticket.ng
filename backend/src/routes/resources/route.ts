@@ -10,8 +10,8 @@ router.post("/faq", createFAQ);
 router.delete("/faq", requireAdmin, deleteFAQs);
 
 router.get("/blog", readBlogs);
-router.post("/blog", requireAuth, createBlog);
-router.delete("/blog", requireAuth, deleteBlog);
+router.post("/blog", createBlog);
+router.delete("/blog", requireAdmin, deleteBlog);
 
 router.get("/changelog", getUpdates)
 router.post("/changelog", requireAdmin, pushUpdates);
