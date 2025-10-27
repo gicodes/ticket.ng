@@ -14,7 +14,7 @@ type SendEmailProps = {
 export async function sendEmail({ to, subject, html }: SendEmailProps) {
   try {
     const { data, error } = await resend.emails.send({
-      from: 'TicTask <onboarding@resend.dev>',
+      from: 'TicTask <onboarding@gicodes.com>',
       to,
       subject,
       html,
