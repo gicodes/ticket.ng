@@ -1,21 +1,27 @@
 import React from 'react';
 import TicketCard from './ticketCard';
 import { Ticket } from '@/types/ticket';
-import { Box, Typography } from '@mui/material';
+import { Badge, Box, Typography } from '@mui/material';
 
 export const BoardColumn: React.FC<{
   title: string;
   tickets: Ticket[];
   onOpen?: (id: string | number) => void;
-}> = ({ title, tickets, onOpen }) => {
+  }> = ({ 
+    title, 
+    tickets, 
+    onOpen 
+  }
+) => {
   return (
-    <Box sx={{
-      minWidth: 320,
-      maxWidth: 360,
-      mr: 2,
-      p: 1,
-      bgcolor: 'transparent',
-    }}>
+    <Box 
+      sx={{
+        p: 1, mr: 1,
+        maxWidth: 360,
+        bgcolor: 'transparent',
+        minWidth: { xs: 300, sm: 266, md: 270, lg: 320},
+      }}
+    >
       <Typography variant="h6" 
         sx={{ 
           p: 1,
@@ -26,16 +32,19 @@ export const BoardColumn: React.FC<{
           alignContent: 'center' 
         }}
       >
-        {title}
-        <small style={{ fontWeight: 500, color: 'gray' }}>
-          ({tickets.length})
-        </small>
+        <Badge sx={{ display: { xs: 'none', sm: 'flex' }}}>
+          ▿ {title==='IN_PROGRESS' ? 'IN PROGRESS' : title}
+        </Badge>
+        <span style={{ fontWeight: 500, color: 'gray' }}>
+          ➥ ({tickets?.length})
+        </span>
       </Typography>
+      
       <Box>
-        {tickets.map(t => <TicketCard key={t.id} ticket={t} onOpen={onOpen} />)}
+        {tickets?.map(t => <TicketCard key={t?.id} ticket={t} onOpen={onOpen} />)}
       </Box>
     </Box>
   );
 };
 
-export default BoardColumn;
+export default BoardColumn

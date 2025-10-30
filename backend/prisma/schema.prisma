@@ -32,6 +32,7 @@ enum AdminLevel {
 }
 
 enum TicketStatus {
+  UPCOMING
   OPEN
   IN_PROGRESS
   RESOLVED
@@ -72,6 +73,7 @@ model User {
   lockedUntil     DateTime?
 
   userType     UserType     @default(PERSONAL)
+  position     String ?
   country      String?
   phone        String?
   bio          String?
