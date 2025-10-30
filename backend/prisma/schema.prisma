@@ -73,7 +73,7 @@ model User {
   lockedUntil     DateTime?
 
   userType     UserType     @default(PERSONAL)
-  position     String ?
+  position     String?
   country      String?
   phone        String?
   bio          String?
