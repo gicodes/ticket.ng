@@ -67,41 +67,50 @@ model User {
   password String
   role     Role   @default(USER)
 
+  // --- General Info ---
   isVerified      Boolean   @default(false)
   emailVerifiedAt DateTime?
   failedLogins    Int       @default(0)
   lockedUntil     DateTime?
 
   userType     UserType     @default(PERSONAL)
-  position     String?
   country      String?
   phone        String?
   bio          String?
-  photo        String? 
+  photo        String?
+  position     String?
   organization String?
   industry     String?
   teamSize     String?
   website      String?
-  logo         String? 
+  logo         String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
+  // --- Relations ---
   refreshTokens   RefreshToken[]
   teamMemberships TeamMember[]
   createdTeams    Team[]         @relation("OwnedTeams")
   adminProfile    Admin?
-
-  invitationsSent Invitation[] @relation("InvitedByUser")
+  invitationsSent Invitation[]   @relation("InvitedByUser")
 
   tickets   Ticket[]        @relation("CreatedByUser")
   assigned  Ticket[]        @relation("AssignedTickets")
   notes     TicketNote[]    @relation("NotesByUser")
   histories TicketHistory[] @relation("HistoriesByUser")
 
-  blogs        Blog[]
+  blogs        Blog[]        @relation("BlogAuthor") 
   changelogs   Changelog[]
-  faqs         FAQ[]
+  faqs         FAQ[]         @relation("FAQAuthor")
+
+  // --- Partner / Collab Fields ---
+  partner       Boolean  @default(false)
+  collab        Boolean  @default(false)
+  PartnerRole   String?
+
+  partnerProfile Partner? @relation("UserPartner")
+  careerProfile  Career?  @relation("UserCareer")
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Admin {
@@ -266,7 +275,7 @@ model Blog {
   updatedAt   DateTime @updatedAt
 
   authorId    Int?
-  author      User?    @relation(fields: [authorId], references: [id])
+  author      User? @relation("BlogAuthor", fields: [authorId], references: [id])
 }
 
 model Changelog {
@@ -277,7 +286,7 @@ model Changelog {
   createdAt   DateTime @default(now())
 
   createdById Int?
-  createdBy   User?    @relation(fields: [createdById], references: [id])
+  createdBy   User? @relation(fields: [createdById], references: [id])
 }
 
 model FAQ {
@@ -288,5 +297,45 @@ model FAQ {
   updatedAt   DateTime @updatedAt
 
   createdById Int?
-  createdBy   User?    @relation(fields: [createdById], references: [id])
+  createdBy   User? @relation("FAQAuthor", fields: [createdById], references: [id])
+}
+
+model Partner {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String
+  company   String?
+  message   String?
+  roles     String[]
+  collab    Boolean  @default(false)
+  approved  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  userId Int?   @unique  
+  user   User?  @relation("UserPartner", fields: [userId], references: [id])
+}
+
+model Career {
+  id          Int       @id @default(autoincrement())
+  role        String
+  description String?
+  open        Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  applicants  CareerApplication[]
+  userId      Int?  @unique 
+  user        User? @relation("UserCareer", fields: [userId], references: [id])
+}
+
+model CareerApplication {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String
+  resumeUrl String?
+  message   String?
+  createdAt DateTime @default(now())
+
+  careerId Int?
+  career   Career? @relation(fields: [careerId], references: [id])
 }

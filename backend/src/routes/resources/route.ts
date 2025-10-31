@@ -1,7 +1,6 @@
 import { Router } from "express";
-import { requireAuth } from "../../middlewares/auth";
 import { requireAdmin } from "../../middlewares/requireAdmin";
-import { createBlog, createFAQ, deleteBlog, deleteFAQs, deleteUpdates, getUpdates, pushUpdates, readBlogs, readFAQs } from "../../controllers/resources/api";
+import { createBlog, createFAQ, deleteBlog, deleteFAQs, deleteUpdates, getUpdates, pushUpdates, readBlogs, readFAQs, readSingleBlog } from "../../controllers/resources/api";
 
 const router = Router();
 
@@ -11,6 +10,7 @@ router.delete("/faq", requireAdmin, deleteFAQs);
 
 router.get("/blog", readBlogs);
 router.post("/blog", createBlog);
+router.get("/blog/:slug", readSingleBlog);
 router.delete("/blog", requireAdmin, deleteBlog);
 
 router.get("/changelog", getUpdates)

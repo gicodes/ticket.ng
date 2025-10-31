@@ -35,8 +35,39 @@ export const createBlog = async (req: Request, res: Response) => {
   }
 };
 
+export const readSingleBlog = async (req: Request, res: Response) => {
+    console.log('hiiiiiiiiiiii')
+  try {
+    const { slug } = req.params;
+
+    const blog = await prisma.blog.findUnique({
+      where: { slug },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        excerpt: true,
+        content: true,
+        coverImage: true,
+        createdAt: true,
+        author: { select: { id: true, name: true, email: true } },
+      },
+    });
+
+    if (!blog) {
+      return res.status(404).json({ error: "Blog not found" });
+    }
+
+    res.json({ success: true, data: blog });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch blog" });
+  }
+};
+
 export const readBlogs = async (_req: Request, res: Response) => {
   try {
+    console.log("hi")
     const blogs = await prisma.blog.findMany({
       orderBy: { createdAt: "desc" },
       select: {
