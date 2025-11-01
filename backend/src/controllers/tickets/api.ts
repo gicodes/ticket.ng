@@ -3,12 +3,23 @@ import { prisma } from "../../lib/prisma";
 
 export const createTicket = async (req: Request, res: Response) => {
   try {
-    const { title, description, createdById } = req.body;
+    const { type, title, description, priority, assignTo, tags, createdById, dueDate } = req.body;
+    console.log(req.body);
     const ticket = await prisma.ticket.create({
-      data: { title, description, createdById }
+      data: {
+        type,
+        title,
+        description,
+        priority,
+        tags,
+        dueDate: new Date(dueDate),
+        createdById,
+        createdAt: new Date()
+      }
     });
     res.status(201).json({ message: "Ticket Created", ticket});
   } catch (err) {
+    console.error(err)
     res.status(500).json({ error: "Failed to create ticket" });
   }
 };
@@ -46,5 +57,23 @@ export const getAllTickets = async (res: Response) => {
     res.json(allTickets);
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch tickets" });
+  }
+}
+
+export const getUserTicket = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const tickets = await prisma.ticket.findMany({
+      where: { createdById: Number(id) }
+    })
+
+    res.status(201).json({
+      ok: true,
+      message: "Fetched tickets successfully",
+      tickets: tickets
+    })
+  }
+  catch (err) {
+    res.status(500).json({ error: "Failed to mark ticket as complete" });
   }
 }

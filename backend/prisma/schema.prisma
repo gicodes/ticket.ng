@@ -53,6 +53,21 @@ enum TicketType {
   FEATURE_REQUEST
   SUPPORT
   EVENT
+  INVOICE
+  ISSUE
+  TASK
+  TEST
+  RELEASE
+  SECURITY 
+  DESIGN
+  MEETING
+  PERFORMANCE
+  MAINTENANCE 
+  OPTIMIZATION
+  DOCUMENTATION
+  RESEARCH
+  DEPLOYMENT
+  TICKET
 }
 
 enum UserType {
@@ -67,7 +82,6 @@ model User {
   password String
   role     Role   @default(USER)
 
-  // --- General Info ---
   isVerified      Boolean   @default(false)
   emailVerifiedAt DateTime?
   failedLogins    Int       @default(0)
@@ -85,7 +99,6 @@ model User {
   website      String?
   logo         String?
 
-  // --- Relations ---
   refreshTokens   RefreshToken[]
   teamMemberships TeamMember[]
   createdTeams    Team[]         @relation("OwnedTeams")
@@ -101,7 +114,6 @@ model User {
   changelogs   Changelog[]
   faqs         FAQ[]         @relation("FAQAuthor")
 
-  // --- Partner / Collab Fields ---
   partner       Boolean  @default(false)
   collab        Boolean  @default(false)
   PartnerRole   String?
@@ -196,6 +208,8 @@ model Ticket {
   status      TicketStatus   @default(OPEN)
   priority    TicketPriority @default(MEDIUM)
   type        TicketType     @default(GENERAL)
+  tags        String[]
+  dueDate     DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -208,7 +222,6 @@ model Ticket {
 
   assignedToId Int?
   assignedTo   User? @relation("AssignedTickets", fields: [assignedToId], references: [id])
-
   notes   TicketNote[]
   history TicketHistory[]
 }

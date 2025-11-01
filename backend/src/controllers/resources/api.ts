@@ -36,7 +36,6 @@ export const createBlog = async (req: Request, res: Response) => {
 };
 
 export const readSingleBlog = async (req: Request, res: Response) => {
-    console.log('hiiiiiiiiiiii')
   try {
     const { slug } = req.params;
 
@@ -95,7 +94,6 @@ export const deleteBlog = async (req: Request, res: Response) => {
     const blog = await prisma.blog.findUnique({ where: { id } });
     if (!blog) return res.status(404).json({ error: "Blog not found" });
 
-    // Author or admin check
     const isAdmin = user?.roles?.includes?.("admin");
     if (blog.authorId !== user?.id && !isAdmin)
       return res.status(403).json({ error: "Unauthorized" });
