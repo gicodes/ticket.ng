@@ -17,6 +17,7 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
+  Card,
 } from "@mui/material";
 import { CheckCircle } from "lucide-react";
 import { PLANS } from "@/constants/product";
@@ -42,18 +43,18 @@ export default function PricingSection() {
             onChange={(_, val) => val && setBilling(val)}
             sx={{
               mt: 3,
-              borderRadius: 4,
-              bgcolor: "var(--background)",
               "& .MuiToggleButton-root": {
                 border: "none",
                 textTransform: "none",
                 px: 3,
+                minWidth: 170
               },
-              color: "var(--foreground)"
             }}
           >
-            <ToggleButton value="monthly">Monthly</ToggleButton>
-            <ToggleButton value="yearly">Yearly (Save 20%)</ToggleButton>
+            <Card sx={{ borderRadius: 9999}}>
+              <ToggleButton value="monthly">Monthly</ToggleButton>
+              <ToggleButton value="yearly">Yearly (Save 20%)</ToggleButton>
+            </Card>
           </ToggleButtonGroup>
         </Stack>
 
@@ -67,6 +68,7 @@ export default function PricingSection() {
               >
                 <Box
                   sx={{
+                    border: '0.1px solid var(--secondary)',
                     bgcolor: plan.highlight ? "var(--background)" : "transparent",
                     color: plan.highlight ? "var(--foreground)" : "inherit",
                     borderRadius: 4,

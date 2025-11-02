@@ -108,7 +108,6 @@ export const onboarding = async (req: Request, res: Response) => {
         html: composeEmailTemplate({
           subject: "Onboarding Complete. Welcome Aboard!",
           title: "Welcome Aboard!",
-          subtitle: "Your TicTask onboarding is complete",
           body1: `
             <p>Hi ${name || orgName || ""},</p>
             <p>Your onboarding is complete — you can now start being productive with TicTask!</p>
