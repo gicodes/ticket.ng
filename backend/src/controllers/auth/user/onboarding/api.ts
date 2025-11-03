@@ -133,6 +133,7 @@ export const onboarding = async (req: Request, res: Response) => {
     }
 
     return res.json({
+      ok: true,
       message: `Step ${step} saved`,
       redirect: step < 3 ? `/onboarding?step=${step + 1}` : "/dashboard",
     });

@@ -5,6 +5,7 @@ import express from "express";
 import { json } from "body-parser";
 import cookieParser from "cookie-parser";
 import authRoutes from "./routes/auth/route";
+import userRoutes from "./routes/user/route";
 import teamsRoutes from "./routes/team/route";
 import adminRoutes from "./routes/admin/route";
 import ticketRoutes from "./routes/tickets/route";
@@ -37,6 +38,7 @@ app.use(
 app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);
+app.use("/api/user", userRoutes);
 app.use("/api/teams", teamsRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/tickets", ticketRoutes);
