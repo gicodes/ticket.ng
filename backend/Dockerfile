@@ -27,4 +27,4 @@ ENV PORT=4000
 EXPOSE 4000
 
 # Start the built server
-CMD ["npm", "run", "start"]
+CMD ["sh", "-c", "npx prisma migrate deploy && npm run start"]
