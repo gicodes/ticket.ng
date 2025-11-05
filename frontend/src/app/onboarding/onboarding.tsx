@@ -1,16 +1,15 @@
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { signIn, useSession } from 'next-auth/react';
 import { GenericAPIRes } from '@/types/axios';
 import { UserType } from '@/types/onboarding';
+import { signIn } from 'next-auth/react';
 import { apiPost } from '@/lib/api';
 import { useState } from 'react';
 import OnboardingUI from './ui';
 
 export default function Onboarding() {
   const router = useRouter();
-  const { update } = useSession();
   const params = useSearchParams();
   const token = params.get('token');
   const [bio, setBio] = useState('');
@@ -32,7 +31,10 @@ export default function Onboarding() {
 
   const stepsTotal = 3;
 
-  const saveStep = async (step: number, data: unknown): Promise<GenericAPIRes> => {
+  const saveStep = async (
+    step: number, 
+    data: unknown
+  ): Promise<GenericAPIRes> => {
     setLoading(true);
     setError(null);
 
@@ -96,6 +98,7 @@ export default function Onboarding() {
       };
 
       const res = await saveStep(3, finalData);
+      
       if (res.ok) {
         console.log(res)
         const email = res?.user?.email;
