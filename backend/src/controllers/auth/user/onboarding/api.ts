@@ -122,6 +122,7 @@ export const onboarding = async (req: Request, res: Response) => {
       await Redis.del(redisKey);
 
       return res.json({
+        ok: true,
         message: "Onboarding complete. Session created.",
         redirect: "/dashboard",
         user: {
@@ -137,7 +138,6 @@ export const onboarding = async (req: Request, res: Response) => {
       message: `Step ${step} saved`,
       redirect: step < 3 ? `/onboarding?step=${step + 1}` : "/dashboard",
     });
-
   } catch (err: any) {
     console.error("❌ Onboarding Error:", err);
     return res.status(500).json({ message: "Server error" });

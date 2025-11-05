@@ -7,10 +7,12 @@ dotenv.config();
 
 (async () => {
   try {
+   await prisma.ticket.deleteMany({
+      where: { createdBy: { email: { in: emailsToDelete } } },
+    });
+
     await prisma.refreshToken.deleteMany({
-      where: {
-        user: { email: { in: emailsToDelete } },
-      },
+      where: { user: { email: { in: emailsToDelete } } },
     });
 
     const deletedUsers = await prisma.user.deleteMany({
