@@ -4,13 +4,17 @@ import { Box, Chip } from '@mui/material';
 import { getStatusColor, priorityColor } from '../_level_1/tColorVariants';
 
 const TicketsList = ({
+  list,
   tickets,
   openDetail,
 }: {
+  list: string[];
   tickets: Ticket[];
   openDetail: (id: string | number) => void;
 }) => {
-  if (tickets?.length===0) return <Box textAlign={'center'} py={12}>No tickets found</Box>
+  if (tickets?.length===0) return <Box textAlign={'center'} py={12} border={'0.1px solid var(--disabled)'} borderRadius={2}>
+    Tickets and Tasks empty.. Nothing to list 😶 
+  </Box>
 
   return (
     <Box py={3} px={2} maxWidth={'96vw'}>
@@ -50,7 +54,7 @@ const TicketsList = ({
         >
           <thead style={{ textAlign: 'left' }}>
             <tr>
-              {['No.', 'Title', 'Priority','Status',  'Type', 'Due Date', 'Last Updated'].map((h) => (
+              {list.map((h) => (
                 <th
                   key={h}
                   style={{
@@ -94,7 +98,7 @@ const TicketsList = ({
                   {t.title}
                 </td>
 
-                <td style={{ padding: '10px', whiteSpace: 'nowrap' }}>
+                {list.includes("Priority") && <td style={{ padding: '10px', whiteSpace: 'nowrap' }}>
                   <Chip
                     label={t.priority}
                     size="small"
@@ -106,9 +110,9 @@ const TicketsList = ({
                       textTransform: 'capitalize',
                     }}
                   />
-                </td>
+                </td>}
 
-                <td style={{ padding: '10px', whiteSpace: 'nowrap' }}>
+                {list.includes("Status") && <td style={{ padding: '10px', whiteSpace: 'nowrap' }}>
                   <Chip
                     label={t.status==="IN_PROGRESS" ? "IN PROGRESS" : t.status}
                     size="small"
@@ -120,7 +124,7 @@ const TicketsList = ({
                       textTransform: 'capitalize',
                     }}
                   />
-                </td>
+                </td>}
 
                 <td style={{ padding: '10px', whiteSpace: 'nowrap' }}>
                   {t.type==='FEATURE_REQUEST' ? 'FEATURE' : t.type}
@@ -136,7 +140,7 @@ const TicketsList = ({
                       : new Date(t.dueDate).toDateString()): '-----'}
                 </td>
 
-                <td style={{ padding: '10px', whiteSpace: 'nowrap' }}>
+                {list.includes("Last Updated") && <td style={{ padding: '10px', whiteSpace: 'nowrap' }}>
                   {t.updatedAt
                     ? new Date(t.updatedAt).toLocaleString('en-US', {
                         month: '2-digit',
@@ -147,7 +151,7 @@ const TicketsList = ({
                         hour12: true,
                       }).replace(' ', ' ') 
                     : ''}
-                </td>
+                </td>}
               </tr>
             ))}
           </tbody>
