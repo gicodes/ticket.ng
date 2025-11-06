@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { handleSendAI, Message } from '../_level_1/aiSend';
 import {
   Box,
   Drawer,
@@ -14,27 +15,19 @@ import {
   Avatar,
   Toolbar,
 } from '@mui/material';
+import { usePathname } from 'next/navigation';
 import { SmartToy, Send, Chat} from '@mui/icons-material';
 
 export default function AiAssistantDrawer() {
   const [open, setOpen] = useState(false);
-  const [messages, setMessages] = useState([
-    { role: 'assistant', content: "👋  Hi! I’m your AI Assistant. How can I help you today?" },
+  const [messages, setMessages] = useState<Message []>([
+    { role: 'assistant', content: "👋  Hey there, I'm your AI Assistant. How can I help you today?" },
   ]);
   const [input, setInput] = useState('');
+  const pathname = usePathname();
+  const isAiPage = pathname.startsWith('/dashboard/ai');
 
-  const handleSend = () => {
-    if (!input.trim()) return;
-    const newMessage = { role: 'user', content: input };
-    setMessages((prev) => [...prev, newMessage]);
-    setInput('');
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        { role: 'assistant', content: 'Mock AI response — integration coming soon!' },
-      ]);
-    }, 800);
-  };
+  if (isAiPage) return null;
 
   return (
     <>
@@ -67,13 +60,13 @@ export default function AiAssistantDrawer() {
           },
         }}
       >
-        <Toolbar />
+        <Toolbar sx={{ display: { xs: 'block', md: 'none'}}} />
         <Box
           display="flex"
           alignItems="center"
           justifyContent="space-between"
-          px={2}
-          pb={2}
+          mt={{ xs: 1, md: 4}}
+          p={2}
           borderBottom="1px solid"
           borderColor="divider"
         >
@@ -81,7 +74,7 @@ export default function AiAssistantDrawer() {
             <SmartToy sx={{ color: 'var(--special)'}} />
             <Typography fontWeight={600}>AI Assistant</Typography>
           </Stack>
-          <Chip label="BETA" size="small" variant="outlined" sx={{ fontWeight: 600, bgcolor: 'orange', color: 'var(--surface-1)'}} />
+          <Chip label="BETA" size="small" variant="outlined" sx={{ fontWeight: 600, bgcolor: 'orange', color: 'var(--surface-1)', p: 1.5}} />
         </Box>
 
         <Box flex={1} p={2} overflow="auto" sx={{ flexGrow: 1 }}>
@@ -128,7 +121,7 @@ export default function AiAssistantDrawer() {
           borderTop="1px solid"
           borderColor="divider"
         >
-          <button className='btn custom-dull'>Back</button>
+          <button style={{ background: 'transparent', border: 'none', padding: 2}} onClick={() => setOpen(!open)}>← </button>
           <TextField
             fullWidth
             placeholder="Ask TicTask anything..."
@@ -136,9 +129,9 @@ export default function AiAssistantDrawer() {
             variant="outlined"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+            onKeyDown={(e) => e.key === 'Enter' && handleSendAI({ setMessages, setInput, input })}
           />
-          <IconButton color="info" onClick={handleSend}>
+          <IconButton color="info" onClick={() => handleSendAI({ setMessages, setInput, input })}>
             <Send />
           </IconButton>
         </Box>
