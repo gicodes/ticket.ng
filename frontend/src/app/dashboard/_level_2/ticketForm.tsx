@@ -14,6 +14,7 @@ import {
   Toolbar,
   Autocomplete,
   Alert,
+  Typography,
 } from '@mui/material';
 import { apiPost } from '@/lib/api';
 import { useAuth } from '@/providers/auth';
@@ -62,6 +63,11 @@ export default function TicketFormDrawer({
 
   const onSubmit = async (values: FormValues) => {
     try {
+      if (task && (values.dueDate==='' || !values.dueDate)) {
+        showAlert("You must add a due date for planner task!", "warning");
+        return
+      }
+
       const formatted: CreateTicket = {
         ...values,
         dueDate: values.dueDate,
@@ -98,7 +104,9 @@ export default function TicketFormDrawer({
               control={control}
               render={({ field }) => (
                 <TextField select label="Type" {...field}>
-                  {Object.values(TICKET_TYPES).map((v, i) => (
+                  {task ? <MenuItem value={'TASK'}>
+                      Task
+                    </MenuItem> : Object.values(TICKET_TYPES).map((v, i) => (
                     <MenuItem value={v} key={i}>
                       {v==="FEATURE_REQUEST" ? "Feature" : v[0] + v.slice(1).toLocaleLowerCase()}
                     </MenuItem>
@@ -128,7 +136,7 @@ export default function TicketFormDrawer({
               )}
             />
 
-            <Controller
+            {!task && <Controller
               name="priority"
               control={control}
               render={({ field }) => (
@@ -140,7 +148,7 @@ export default function TicketFormDrawer({
                   ))}
                 </TextField>
               )}
-            />
+            />}
 
             {user?.userType==="BUSINESS" && <Controller
               name="assignTo"
@@ -154,19 +162,30 @@ export default function TicketFormDrawer({
               )}
             />}
 
-            <Controller
-              name="dueDate"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  label="Due date"
-                  type="date"
-                  InputLabelProps={{ shrink: true }}
-                  {...field}
-                />
-              )}
-            />
-
+            {<Stack py={3} spacing={3}>
+              <Typography>Set a due date for your {task ? "task" : "ticket"}</Typography>
+              <Controller
+                name="dueDate"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    label="Due date"
+                    type="date"
+                    InputLabelProps={{ shrink: true }}
+                    fullWidth
+                    sx={{
+                      "& input": {
+                        padding: "20px 14px",
+                        borderRadius: 1,
+                        fontSize: { xs: "1rem", sm: "1.1rem" },
+                      },
+                    }}
+                  />
+                )}
+              />
+            </Stack>
+            }
             <Controller
               name="tags"
               control={control}
@@ -184,7 +203,7 @@ export default function TicketFormDrawer({
               )}
             />
 
-            <Stack direction="row" spacing={1} pt={3}>
+            <Stack direction="row" spacing={3} pt={3}>
               <button className={styles.btnAction} type="submit">
                 Create
               </button>

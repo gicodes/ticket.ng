@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import {
   Box,
+  Drawer,
+  Fab,
   Paper,
   Stack,
   Typography,
@@ -10,90 +12,89 @@ import {
   IconButton,
   Chip,
   Avatar,
-  Divider,
+  Toolbar,
 } from '@mui/material';
-import { Send, SmartToy, Person } from '@mui/icons-material';
+import { SmartToy, Send, Chat} from '@mui/icons-material';
 
-export default function AiAssistantPage() {
+export default function AiAssistantDrawer() {
+  const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: "👋 Hey there! I’m your AI Assistant. How can I help you today?" },
+    { role: 'assistant', content: "👋  Hi! I’m your AI Assistant. How can I help you today?" },
   ]);
   const [input, setInput] = useState('');
 
   const handleSend = () => {
     if (!input.trim()) return;
-
     const newMessage = { role: 'user', content: input };
     setMessages((prev) => [...prev, newMessage]);
     setInput('');
-
-    setTimeout(() => {// Mock AI response
+    setTimeout(() => {
       setMessages((prev) => [
         ...prev,
-        { role: 'assistant', content: "This is a mock AI response — live integration coming soon!" },
+        { role: 'assistant', content: 'Mock AI response — integration coming soon!' },
       ]);
     }, 800);
   };
 
   return (
-    <Box display="flex" justifyContent="center" p={3}>
-      <Paper
-        elevation={3}
+    <>
+      <Fab
+        aria-label="open ai assistant"
+        onClick={() => setOpen(true)}
         sx={{
-          width: '100%',
-          maxWidth: 777,
-          borderRadius: 3,
-          display: 'flex',
-          flexDirection: 'column',
-          height: '75vh',
+          position: 'fixed',
+          bottom: 24,
+          right: 24,
+          boxShadow: 3,
+          bgcolor: 'var(--secondary)',
+        }}
+      >
+        <Chat fontSize='small' />
+      </Fab>
+
+      <Drawer
+        anchor="right"
+        open={open}
+        onClose={() => setOpen(false)}
+        PaperProps={{
+          sx: {
+            width: { xs: '100%', sm: 380 },
+            borderTopLeftRadius: { xs: 0, sm: 12 },
+            borderBottomLeftRadius: { xs: 0, sm: 12 },
+            height: { xs: '100%', sm: '90vh' },
+            marginTop: { xs: 0, sm: 5 },
+            boxShadow: 5,
+          },
         }}
       >
         <Box
           display="flex"
           alignItems="center"
           justifyContent="space-between"
-          px={3}
-          py={2}
+          pt={6}
+          px={2}
+          pb={1}
           borderBottom="1px solid"
           borderColor="divider"
         >
           <Stack direction="row" alignItems="center" spacing={1}>
-            <SmartToy fontSize="medium" sx={{ color: 'var(--special)'}} />
-            <Typography variant="h6" fontWeight={600}>
-              AI Assistant
-            </Typography>
+            <SmartToy sx={{ color: 'var(--special)'}} />
+            <Typography fontWeight={600}>AI Assistant</Typography>
           </Stack>
-          <Chip 
-            label="BETA" 
-            variant="outlined" 
-            sx={{ 
-              bgcolor: 'orange', 
-              color: 'var(--surface-1)', 
-              fontWeight: 600, 
-              p: 1.5, 
-              border: 'none',
-              fontFamily: 'monospace'
-            }}
-          />
+          <Chip label="BETA" size="small" variant="outlined" sx={{ fontWeight: 600, bgcolor: 'orange', color: 'var(--surface-1)'}} />
         </Box>
 
-        <Box
-          flex={1}
-          p={2}
-          overflow="auto"
-          sx={{ scrollBehavior: 'smooth', backgroundColor: 'background.default' }}
-        >
+        <Box flex={1} p={2} overflow="auto" sx={{ flexGrow: 1 }}>
           <Stack spacing={2}>
             {messages.map((msg, idx) => (
               <Stack
                 key={idx}
                 direction="row"
                 justifyContent={msg.role === 'user' ? 'flex-end' : 'flex-start'}
-                alignItems="flex-start"
                 spacing={1.5}
               >
                 {msg.role === 'assistant' && (
-                  <Avatar sx={{ bgcolor: 'var(--special)' }}>
+                  <Avatar sx={{ bgcolor: 'var(--special)', width: 28, height: 28 }}>
                     <SmartToy fontSize="small" />
                   </Avatar>
                 )}
@@ -104,45 +105,43 @@ export default function AiAssistantPage() {
                     maxWidth: '80%',
                     bgcolor:
                       msg.role === 'user'
-                        ? 'primary.main'
+                        ? 'info.main'
                         : 'background.paper',
                     color:
                       msg.role === 'user'
-                        ? 'info.contrastText'
-                        : 'text.info',
+                        ? 'primary.contrastText'
+                        : 'text.primary',
                   }}
                 >
                   <Typography variant="body2">{msg.content}</Typography>
                 </Paper>
-                {msg.role === 'user' && (
-                  <Avatar sx={{ bgcolor: 'grey.500' }}>
-                    <Person fontSize="small" />
-                  </Avatar>
-                )}
               </Stack>
             ))}
           </Stack>
         </Box>
 
-        <Box p={2} display="flex" alignItems="center" gap={1}>
+        <Box
+          p={2}
+          display="flex"
+          alignItems="center"
+          gap={1}
+          borderTop="1px solid"
+          borderColor="divider"
+        >
           <TextField
             fullWidth
             placeholder="Ask TicTask anything..."
-            variant="outlined"
             size="small"
+            variant="outlined"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
           />
-          <IconButton
-            color="info"
-            onClick={handleSend}
-            sx={{ borderRadius: 2 }}
-          >
+          <IconButton color="info" onClick={handleSend}>
             <Send />
           </IconButton>
         </Box>
-      </Paper>
-    </Box>
+      </Drawer>
+    </>
   );
 }
