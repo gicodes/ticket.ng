@@ -23,7 +23,6 @@ const PlannerCalendar: React.FC<PlannerCalendarProps> = ({
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery('(max-width:600px)');
-
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [activeView, setActiveView] = useState<View>('month');
 
@@ -141,15 +140,15 @@ const PlannerCalendar: React.FC<PlannerCalendarProps> = ({
       }}
     >
       <Stack
-        direction={{ xs: 'column', sm: 'row' }}
         alignItems={{ xs: 'flex-start', sm: 'center' }}
+        direction={{ xs: 'column', sm: 'row' }}
         justifyContent="space-between"
         sx={{
           py: 2,
           px: 0,
           borderBottom: 1,
-          borderColor: 'divider',
           gap: { xs: 2, sm: 0 },
+          borderColor: 'divider',
         }}
       >
         <Stack 
@@ -163,7 +162,7 @@ const PlannerCalendar: React.FC<PlannerCalendarProps> = ({
             <IconButton onClick={() => handleNavigate('PREV')}>
               <ChevronLeft size={20} />
             </IconButton>
-            <Typography variant="h6" sx={{ fontWeight: 600 }} color='var(--bw)'>
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>
               {moment(currentDate).format(
                 activeView === 'month' ? 'MMMM YYYY' : 'MMMM D, YYYY'
               )}
@@ -173,14 +172,18 @@ const PlannerCalendar: React.FC<PlannerCalendarProps> = ({
             </IconButton>
           </Stack>
           <Button
-            variant="outlined"
-            sx={{ color: 'var(--bw)', borderColor: 'var(--success)', height: 36}}
+            variant="contained"
+            sx={{ 
+              color: 'inherit',
+              bgcolor: 'var(--surface-2)',
+              border: '0.1px solid var(--success)', 
+              height: 36
+            }}
             onClick={() => handleNavigate('TODAY')}
           >
             Today
           </Button>
         </Stack>
-
         <Stack direction="row" spacing={1} mx={{ xs: 'auto', md: 0}}>
           {(['month', 'week', 'day'] as View[]).map((view) => (
             <Button
@@ -235,9 +238,7 @@ const PlannerCalendar: React.FC<PlannerCalendarProps> = ({
             },
           };
         }}
-        style={{
-          fontFamily: theme.typography.fontFamily,
-        }}
+        style={{ fontFamily: theme.typography.fontFamily,}}
       />
     </Box>
   );

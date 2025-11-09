@@ -62,13 +62,13 @@ export const login = async (req: Request, res: Response) => {
 
     res.status(201).json({ 
       ok: true,
-      accessToken: access, 
       user: { 
         id: user.id, 
         email: user.email, 
         role: user.role,
         name: user?.name,
         photo: user.photo,
+        accessToken: access
       } 
     });
   } catch (err) {
