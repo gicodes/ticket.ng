@@ -11,6 +11,7 @@ import adminRoutes from "./routes/admin/route";
 import ticketRoutes from "./routes/tickets/route";
 import webhookRoutes from "./routes/webhooks/route";
 import resourcesRoutes from "./routes/resources/route";
+import subscriptionRoutes from "./routes/subscription/route";
 
 
 dotenv.config();
@@ -44,6 +45,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/tickets", ticketRoutes);
 app.use("/api/webhooks", webhookRoutes);
 app.use("/api/resources", resourcesRoutes);
+app.use("/api/subscription", subscriptionRoutes);
 
 app.get("/api/health", (res: any) => {
   res.json({ status: "ok" });

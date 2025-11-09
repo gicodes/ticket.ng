@@ -121,6 +121,8 @@ model User {
   partnerProfile Partner? @relation("UserPartner")
   careerProfile  Career?  @relation("UserCareer")
 
+  subscription Subscription?
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -183,8 +185,11 @@ model Subscription {
   expiresAt DateTime
   createdAt DateTime @default(now())
 
-  teamId Int  @unique
-  team   Team @relation(fields: [teamId], references: [id])
+  userId Int?   @unique
+  user   User?  @relation(fields: [userId], references: [id])
+
+  teamId Int?   @unique
+  team   Team?  @relation(fields: [teamId], references: [id])
 }
 
 model Client {
