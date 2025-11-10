@@ -50,6 +50,7 @@ app.use("/api/tickets", ticketRoutes);
 app.use("/api/webhooks", webhookRoutes);
 app.use("/api/resources", resourcesRoutes);
 app.use("/api/subscription", subscriptionRoutes);
+app.post("/api/subscriptions/stripe/webhook", express.raw({ type: "application/json" }), subscriptionRoutes);
 
 app.get("/api/health", (res: any) => {
   res.json({ status: "ok" });

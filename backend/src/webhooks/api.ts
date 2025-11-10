@@ -1,7 +1,7 @@
-import { composeEmailTemplate } from "../../lib/emailTemp";
-import { sendEmail } from "../../lib/sendEmail";
+import { composeEmailTemplate } from "../lib/emailTemp";
 import { Request, Response } from "express";
 import twilio from "twilio";
+import { sendEmail } from "../lib/sendEmail";
 
 export const sendEmailAPI = async (req: Request, res: Response) => {
   try {

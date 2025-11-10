@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { sendEmailAPI, sendSlackAPI, sendSMS } from "../../controllers/webhooks/api";
+import { sendEmailAPI, sendSlackAPI, sendSMS } from "../../webhooks/api";
 
 const router = Router();
 
