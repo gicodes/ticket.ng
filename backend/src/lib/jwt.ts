@@ -33,8 +33,13 @@ export const cookieOptions = () => ({
 });
 
 export const setRefreshCookie = (res: any, token: string) => {
+  const isProd = process.env.NODE_ENV === "production";
+
   res.cookie("refresh_token", token, {
-    ...cookieOptions(),
-    maxAge: 1000 * 60 * 60 * 24 * 30,
+    httpOnly: true,
+    secure: isProd ? true : false,                     
+    sameSite: isProd ? "none" : "lax",  
+    path: "/",                          
+    maxAge: 7 * 24 * 60 * 60 * 1000,   
   });
 };

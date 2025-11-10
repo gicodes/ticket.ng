@@ -6,9 +6,7 @@ export const createSubscription = async (req: Request, res: Response) => {
   try {
     const { id, plan, duration } = req.body; // id = userId or teamId
 
-    if (!id || !plan) {
-      return res.status(400).json({ message: "Missing id or plan" });
-    }
+    if (!id || !plan) return res.status(400).json({ message: "Missing id or plan" });
 
     const user = await prisma.user.findUnique({ where: { id: Number(id) } });
     if (!user) return res.status(404).json({ message: "User not found" });
@@ -36,6 +34,7 @@ export const createSubscription = async (req: Request, res: Response) => {
     });
 
     return res.status(201).json({
+      ok: true,
       message: `${isTeam ? "Team" : "User"} subscription created successfully`,
       subscription,
     });
@@ -59,10 +58,18 @@ export const getSubscription = async (req: Request, res: Response) => {
     });
 
     if (!subscription) {
-      return res.status(404).json({ ok: true, message: "No subscription found" });
+      return res.status(200).json({ 
+        ok: true, 
+        message: "No subscription found",
+        data: null,
+      });
     }
 
-    return res.status(200).json(subscription);
+    return res.status(201).json({
+      ok: true,
+      message: "Subscription retrieved",
+      data: subscription
+    });
   } catch (error) {
     console.error("Error reading subscription:", error);
     return res.status(500).json({ message: "Internal server error" });
