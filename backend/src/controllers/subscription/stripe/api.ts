@@ -29,9 +29,11 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
       success_url: `${process.env.FRONTEND_URL}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.FRONTEND_URL}/pricing`,
       metadata: { userId: user.id, plan },
+      billing_address_collection: 'auto',
+      allow_promotion_codes: true,
     });
 
-    return res.status(200).json({ url: session.url });
+    return res.status(200).json({ url: session.url, sessionId: session.id });
   } catch (error) {
     console.error("Stripe Checkout error:", error);
     return res.status(500).json({ message: "Failed to create checkout session" });

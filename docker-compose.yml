@@ -39,7 +39,6 @@ services:
     volumes:
       - ./backend:/app
       - /app/node_modules
-    command: sh -c "npx prisma migrate deploy && npm run dev"
 
   frontend:
     build:
@@ -56,8 +55,6 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
-
-    command: npm run dev
 
   pgadmin:
     image: dpage/pgadmin4

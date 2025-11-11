@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
-    "start": "npx prisma migrate deploy && npm run dev",
+    "start": "npx prisma migrate deploy && node dist/index.js",
     "build": "tsc -p .",
     "postinstall": "npx prisma generate",
     "usersdbcleanup": "npx ts-node src/controllers/admin/scripts/cleanup.ts"
