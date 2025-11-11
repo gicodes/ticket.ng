@@ -20,7 +20,8 @@ dotenv.config();
 const app = express();
 
 const allowedOrigins = [
-  "http://localhost:3000", process.env.FRONTEND_URL || "",
+  "http://localhost:3000", 
+  process.env.FRONTEND_URL || "",
 ].filter(Boolean);
 
 app.use(
@@ -28,9 +29,7 @@ app.use(
     origin: (origin, callback) => {
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
+      } else callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],

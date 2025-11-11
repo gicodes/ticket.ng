@@ -7,6 +7,7 @@ import { Box, Typography, Grid, Stack, Divider } from "@mui/material";
 import { useAuth } from "@/providers/auth";
 import { useRouter } from "next/navigation";
 import { getPro } from "@/hooks/useGetPro";
+import { useAlert } from "@/providers/alert";
 
 export const ProductHero = () => {
   return (
@@ -98,12 +99,20 @@ export const ProductShowcase = () => {
 export const ProductCTA = () => {
   const { user } = useAuth();
   const router = useRouter();
+  const { showAlert } = useAlert();
 
   const GetStarted = () => {
     if (!user) router.push('/auth/login');
     
-    if (user && user.userType==="PERSONAL") router.push('/dashboard');
-    if (user && user.userType==="BUSINESS") getPro(user?.id);
+    if (user && user.userType==="PERSONAL"){ 
+      showAlert("Go Pro? Great Choice! Redirecting to subscription page...")
+      setTimeout(() => router.push('/dashboard/subscription'), 5000) 
+    };
+    if (user && user.userType==="BUSINESS") { 
+      showAlert("Redirecting to subscription page. Initiating TicTask Pro...")
+      setTimeout(() => router.push('/dashboard/subscription'), 10000); 
+      getPro(user?.id); 
+    };
   }
 
   return (

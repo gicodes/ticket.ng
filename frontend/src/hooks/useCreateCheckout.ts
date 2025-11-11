@@ -2,6 +2,9 @@
 
 import { useMutation } from '@tanstack/react-query';
 import { loadStripe, type Stripe } from '@stripe/stripe-js';
+import { apiPost } from '@/lib/api';
+import { useAuth } from '@/providers/auth';
+import { StripeCheckOutSessionRequest, StripeCheckOutSessionResponse } from '@/types/axios';
 
 const stripePromise: Promise<Stripe | null> = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!
@@ -12,15 +15,22 @@ interface CheckoutResponse {
 }
 
 export function useCreateCheckoutSession() {
+  const { user } = useAuth()
+      
+  if (!user) return;
+
   return useMutation({
     mutationFn: async (plan: string): Promise<CheckoutResponse> => {
-      const res = await fetch('/api/stripe/create-checkout-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan }),
-      });
+
+      const checkOutCredentials = {
+        userId: user?.id,
+        plan: plan
+      }
+      const res = await apiPost< StripeCheckOutSessionResponse, StripeCheckOutSessionRequest>(
+        "/subscription/stripe/checkout", checkOutCredentials)
       if (!res.ok) throw new Error('Failed to create checkout session');
-      return res.json();
+      
+      return res.data;
     },
     onSuccess: async (data) => {
       const stripe = await stripePromise;

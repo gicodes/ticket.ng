@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useSubscription } from '@/providers/subscription';
 import { CreditCard, DataExploration } from '@mui/icons-material';
@@ -115,11 +116,13 @@ export default function SubscriptionPage() {
             <CardContent>
               <Stack spacing={1.5}>
                 <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                  Need help with your billing or invoices? 
+                  Need help fixing an issue with your billing or subscription? 
                 </Typography>
-                <Button variant="contained" color='inherit' sx={{ maxWidth: 'fit-content', textTransform: 'none'}}>
-                  Contact Support
-                </Button>
+                <Link href={'/company/#contact-us'}>
+                  <Button variant="contained" color='inherit' sx={{ maxWidth: 'fit-content', textTransform: 'none'}}>
+                    Contact Support
+                  </Button>
+                </Link>
               </Stack>
             </CardContent>
           </Card>

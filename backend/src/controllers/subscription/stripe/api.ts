@@ -33,7 +33,11 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
       allow_promotion_codes: true,
     });
 
-    return res.status(200).json({ url: session.url, sessionId: session.id });
+    return res.status(200).json({ 
+      ok: true,
+      url: session.url, 
+      sessionId: session.id 
+    });
   } catch (error) {
     console.error("Stripe Checkout error:", error);
     return res.status(500).json({ message: "Failed to create checkout session" });
