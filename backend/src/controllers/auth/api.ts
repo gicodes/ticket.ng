@@ -15,38 +15,42 @@ export const login = async (req: Request, res: Response) => {
   // console.warn("Login attempt from IP:", req.ip);
 
   try {
-      const { email, password } = loginSchema.parse(req.body) as { email: string; password: string };
-      const user = await prisma.user.findUnique({ where: { email } });
-      if (!user) return res.status(401).json({ message: "Invalid credentials" });
+    const { email, password } = loginSchema.parse(req.body) as { email: string; password: string };
+    const user = await prisma.user.findUnique({ where: { email } });
+    
+    if (!user) return res.status(401).json({ message: "Invalid credentials" });
 
-      if (user.lockedUntil && user.lockedUntil > new Date()) {
-        return res.status(423).json({ message: "Account temporarily locked" });
-      }
+    if (user.lockedUntil && user.lockedUntil > new Date()) 
+      return res.status(423).json({ message: "Account temporarily locked" });
 
-      const ok = await comparePassword(password, user.password);
-      if (!ok) {
-        const failedLogins = user.failedLogins + 1;
-        let lockedUntil: Date | null = null;
-        if (failedLogins >= 5) {
-          lockedUntil = new Date(Date.now() + 15 * 60 * 1000);
-        }
-        await prisma.user.update({
-          where: { id: user.id },
-          data: { failedLogins, lockedUntil }
-        });
-        return res.status(401).json({ message: "Invalid credentials" });
+    const ok = await comparePassword(password, user.password);
+
+    if (!ok) {
+      const failedLogins = user.failedLogins + 1;
+
+      let lockedUntil: Date | null = null;
+      if (failedLogins >= 5) {
+        lockedUntil = new Date(Date.now() + 15 * 60 * 1000);
       }
 
       await prisma.user.update({
         where: { id: user.id },
-        data: { failedLogins: 0, 
+        data: { failedLogins, lockedUntil }
+      });
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { failedLogins: 0, 
         lockedUntil: null 
       }
-  });
+    });
 
     const access = signAccess({ sub: user.id, role: user.role });
     const { token: refresh, jti, exp } = signRefresh({ sub: user.id });
-
+    console.log(access, )
+    
     await prisma.refreshToken.create({
       data: {
         jti,
@@ -78,8 +82,12 @@ export const login = async (req: Request, res: Response) => {
 };
 
 export const refresh = async (req: Request, res: Response) => {
-  const raw = req.cookies?.refresh_token;
-  if (!raw) return res.status(401).json({ message: "Missing refresh token" });
+  console.log("**** req.cookies ::", req.cookies)
+  const raw = req.cookies?.refresh_token || req.headers["x-refresh-token"];
+  
+  if (!raw || typeof raw !== "string") {
+    return res.status(401).json({ message: "Missing refresh token" });
+  }
 
   const payload = verifyRefresh(raw);
 

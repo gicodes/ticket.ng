@@ -38,7 +38,6 @@ services:
       - "4000:4000"
     volumes:
       - ./backend:/app
-      - /app/node_modules
     command: sh -c "npx prisma migrate deploy && npm run dev"
 
   frontend:
@@ -54,8 +53,8 @@ services:
     environment:
       - NEXT_PUBLIC_API_URL=http://localhost:4000/api
     volumes:
-      - ./frontend:/app
-      - /app/node_modules
+      - ./frontend:/app:cached
+    command: sh -c "npx prisma migrate deploy && npm run dev"
 
   pgadmin:
     image: dpage/pgadmin4
@@ -70,6 +69,7 @@ services:
       - postgres
     volumes:
       - pgadmin_data:/var/lib/pgadmin
+
 
 volumes:
   postgres_data:

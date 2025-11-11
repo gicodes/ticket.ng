@@ -47,10 +47,10 @@ app.use("/api/user", userRoutes);
 app.use("/api/teams", teamsRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/tickets", ticketRoutes);
-app.use("/api/webhooks", webhookRoutes);
 app.use("/api/resources", resourcesRoutes);
 app.use("/api/subscription", subscriptionRoutes);
-app.post("/api/subscriptions/stripe/webhook", express.raw({ type: "application/json" }), subscriptionRoutes);
+
+app.use("/api/webhooks", express.raw({ type: "application/json" }), webhookRoutes);
 
 app.get("/api/health", (res: any) => {
   res.json({ status: "ok" });

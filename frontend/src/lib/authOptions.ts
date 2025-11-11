@@ -4,6 +4,7 @@ import GoogleProvider from 'next-auth/providers/google';
 import SlackProvider from 'next-auth/providers/slack';
 import XProvider from 'next-auth/providers/twitter';
 import type { NextAuthOptions } from 'next-auth';
+import { getCookie } from "cookies-next";
 import { nextAuthApiPost } from './api';
 import { User } from '@/types/users';
 
@@ -57,17 +58,28 @@ export const authOptions: NextAuthOptions = {
     updateAge: 24 * 60 * 60, 
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt(params) {
+      const { token, user, req, res } = params as import("next-auth").JWTCallbackParams;
+
       if (user) {
         token.user = user;
         token.accessToken = user.accessToken;
         token.expires = Math.floor(Date.now() / 1000) + 15 * 60;
       }
+      
       const now = Date.now() / 1000;
       if (token.expires && now > Number(token.expires) - 5 * 60) {
         try {
-          const res = await nextAuthApiPost<RefreshToken>("/auth/refresh", undefined, { withCredentials: true });
-          token.accessToken = res.accessToken;
+          const refresh = getCookie("refresh_token", { req, res });
+          if (!refresh) throw new Error("Missing refresh cookie");
+
+          const resData = await nextAuthApiPost<RefreshToken>(
+            "/auth/refresh",
+            undefined,
+            { headers: { "x-refresh-token": String(refresh) },}
+          );
+
+          token.accessToken = resData.accessToken;
           token.expires = now + 15 * 60;
         } catch (err) {
           console.error("Failed to refresh token:", err);
