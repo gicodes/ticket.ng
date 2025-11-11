@@ -1,5 +1,5 @@
 import { BlogCardProps, ChangeLogProps, FAQProps } from "./resources";
-import { Plan, Role, Subscription, User } from "./users";
+import { Role, Subscription, User } from "./users";
 import { Ticket } from "./ticket";
 
 export interface VerifyEmailRequest {
@@ -85,8 +85,9 @@ export interface RefreshToken {
 }
 
 export interface SubscriptionRes {
-  ok: boolean
-  data: Subscription
+  ok: boolean;
+  message?: string;      
+  data: Subscription | null;
 }
 
 export interface GenericAPIRes {
@@ -106,6 +107,10 @@ export interface StripeCheckOutSessionRequest {
 
 export interface StripeCheckOutSessionResponse {
   ok: boolean;
+  message: string;
+  error?: {
+    message: string
+  }
   data: {
     url: string;
     sessionId: string;

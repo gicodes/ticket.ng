@@ -8,6 +8,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 export const createCheckoutSession = async (req: Request, res: Response) => {
   try {
     const { userId, plan } = req.body;
+    console.log(req.body)
 
     const user = await prisma.user.findUnique({ where: { id: Number(userId) } });
     if (!user) return res.status(404).json({ message: "User not found" });

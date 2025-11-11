@@ -22,8 +22,11 @@ export const createSubscription = async (req: Request, res: Response) => {
       where: isTeam ? { teamId: Number(id) } : { userId: Number(id) },
     });
 
-    if (existing)
-      return res.status(409).json({ ok: false, message: "Subscription already exists" });
+    if (existing) return res.status(409).json({ 
+      ok: true, 
+      data: null,
+      message: "Subscription already exists" 
+    });
 
     const expiresAt = getExpiryDate(duration);
 
