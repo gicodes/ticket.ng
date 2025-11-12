@@ -24,6 +24,7 @@ const allowedOrigins = [
   process.env.FRONTEND_URL || "",
 ].filter(Boolean);
 
+app.use(cookieParser());
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -37,7 +38,6 @@ app.use(
   })
 );
 app.use(json());
-app.use(cookieParser());
 
 // app.use("/api/ai", aiRoutes);
 // app.use("/api/company", companyRoutes);
