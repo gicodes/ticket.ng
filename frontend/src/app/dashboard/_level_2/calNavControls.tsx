@@ -1,4 +1,3 @@
-import React from 'react';
 import { Stack, IconButton, Typography, Button } from '@mui/material';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
@@ -20,6 +19,7 @@ export default function NavControls({
           <ChevronLeft size={25} />
         </IconButton>
         <Typography 
+          variant="h6" 
           minWidth={75}
           fontSize={{xs: 15, sm: 18}}
           sx={{ fontWeight: 600, textAlign: 'center' }}
@@ -40,7 +40,9 @@ export default function NavControls({
           fontWeight: 501,
           fontSize: { xs: 14, md: 15},
           textTransform: 'none',
+          color:'var(--bw)'
         }}
+        className='btn'
       >
         See Today
       </Button>
