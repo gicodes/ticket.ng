@@ -82,7 +82,6 @@ export const login = async (req: Request, res: Response) => {
 };
 
 export const refresh = async (req: Request, res: Response) => {
-  console.log("**** req.cookies ::", req.cookies)
   const raw = req.cookies?.refresh_token || req.headers["x-refresh-token"];
   
   if (!raw || typeof raw !== "string") {

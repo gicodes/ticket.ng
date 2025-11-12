@@ -62,7 +62,7 @@ export const onboarding = async (req: Request, res: Response) => {
         where: { id: userId },
         data: {
           userType,
-          name: name || orgName || "",
+          name,
           country: country || hqCountry || null,
           phone,
           organization: orgName || null,
