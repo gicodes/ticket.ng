@@ -16,14 +16,14 @@ import {
 import {
   Sun, Moon, Laptop, Bell, Shield, User, Globe, PlugZap, CreditCard,
 } from 'lucide-react';
+import { motion } from 'framer-motion';
 import styles from '@/app/page.module.css';
 import { useAuth } from '@/providers/auth';
-import { useThemeMode } from '@/providers/theme';
 import { useAlert } from '@/providers/alert';
+import { useThemeMode } from '@/providers/theme';
 import SettingsCard from '../_level_2/settingsCard';
 import { forgotPassword } from '@/hooks/useForgotPass';
 import { useSubscription } from '@/providers/subscription';
-import { motion } from 'framer-motion';
 
 export default function SettingsPage() {
   const { user } = useAuth();
@@ -62,20 +62,27 @@ export default function SettingsPage() {
     i: string;
     action?: () => void;
   }) => (
-    <span onClick={action} key={i} className={`max-width-360 ${styles.btnRetreat}`}>
+    <span onClick={action} key={i} className={`mx-auto max-width-500 ${styles.btnSecondary}`}>
       Connect {title}
     </span>
   );
 
   return (
-    <Box sx={{ maxWidth: 900, mx: 'auto', py: 4, px: 2 }}>
+    <Box 
+      sx={{ 
+        maxWidth: 900, 
+        mx: 'auto', 
+        py: 4, 
+        px: 2 
+      }}
+    >
       <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}>
         <Stack spacing={1} textAlign={{xs: 'center', sm: 'inherit'}} mb={3}>
           <Typography variant="h4" fontWeight={700} sx={{ fontSize: { xs: '1.75rem', sm: '2rem' } }}>
-            Personalize Settings
+            App Settings
           </Typography>
           <Typography variant="body1" sx={{ opacity: 0.7 }}>
-            Customize your Appearance, Account, Notifications, Workspace and more...
+            Customize your Appearance, Account, Notifications, Workspace and more ...
           </Typography>
         </Stack>
       </motion.div>
@@ -177,13 +184,14 @@ export default function SettingsPage() {
         subtitle="Manage session security and data privacy."
       >
         <Stack spacing={2}>
-          <FormControlLabel
+          <FormControlLabel 
             control={<Switch checked={autoSave} onChange={() => setAutoSave(!autoSave)} />}
-            label="Auto-save ticket edits"
+            label="Enable last session on refresh"
           />
-          <span>
-            <button className={`mx-auto max-width-360 ${styles.btnWarm}`}>Log out of all sessions</button>
-          </span>
+          <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+            <Typography component={'button'} className={`max-width-360 ${styles.btnPrimary}`}>Logged in devices</Typography>
+            <Typography component={'button'} className={`max-width-360 ${styles.btnWarm}`}>Log out all sessions</Typography>
+          </Stack>
         </Stack>
       </SettingsCard>
 
@@ -192,9 +200,11 @@ export default function SettingsPage() {
         title="Integrations"
         subtitle="Connect your workspace with tools you use every day."
       >
-        <Stack spacing={1} sx={{ mx: 'auto', maxWidth: 360, mt: 3 }}>
+        <Stack spacing={1} sx={{ mt: 3 }}>
           {['Slack', 'Github', 'Google Drive'].map((i) => (
-            <INTEGRATION_BUTTON title={i} i={i} key={i} />
+            <Box key={i} p={0.5}>
+              <INTEGRATION_BUTTON title={i} i={i} />
+            </Box>
           ))}
         </Stack>
       </SettingsCard>
@@ -218,11 +228,16 @@ export default function SettingsPage() {
             <Typography variant="body2" color="text.secondary">
               <strong>Renews on:</strong> {expiresAt}
             </Typography>
-            <Link href="/dashboard/subscription" className={styles.btnPrimary}>
-              Manage Subscription
-            </Link>
-          </Stack>
-        } 
+            
+            <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+              <Link href="/dashboard/subscription" className={styles.btnPrimary}>
+                Manage Subscription
+              </Link>
+              <Link href="/product/pricing" className={styles.btnSecondary}>
+                See Plans & Prices
+              </Link>
+            </Stack>
+          </Stack>} 
       </SettingsCard>
     </Box>
   );

@@ -66,7 +66,6 @@ export const readSingleBlog = async (req: Request, res: Response) => {
 
 export const readBlogs = async (_req: Request, res: Response) => {
   try {
-    console.log("hi")
     const blogs = await prisma.blog.findMany({
       orderBy: { createdAt: "desc" },
       select: {

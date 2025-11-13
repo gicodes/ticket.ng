@@ -49,7 +49,6 @@ export const login = async (req: Request, res: Response) => {
 
     const access = signAccess({ sub: user.id, role: user.role });
     const { token: refresh, jti, exp } = signRefresh({ sub: user.id });
-    console.log(access, )
     
     await prisma.refreshToken.create({
       data: {
@@ -82,7 +81,8 @@ export const login = async (req: Request, res: Response) => {
 };
 
 export const refresh = async (req: Request, res: Response) => {
-  const raw = req.cookies?.refresh_token || req.headers["x-refresh-token"];
+  console.log("** req.headers and req.cookies:", req.headers["x-refresh-token"]);
+  const raw = req.headers["x-refresh-token"]
   
   if (!raw || typeof raw !== "string") {
     return res.status(401).json({ message: "Missing refresh token" });
@@ -120,7 +120,7 @@ export const refresh = async (req: Request, res: Response) => {
 };
 
 export const logout = async (req: Request, res: Response) => {
-  const raw = req.cookies?.refresh_token;
+  const raw = req.cookies?.refreshToken;
   if (raw) {
     const payload = verifyRefresh(raw);
     await prisma.refreshToken.update({
@@ -128,7 +128,7 @@ export const logout = async (req: Request, res: Response) => {
       data: { revokedAt: new Date() }
     });
   }
-  res.clearCookie("refresh_token", cookieOptions());
+  res.clearCookie("refreshToken", cookieOptions());
   res.status(204).send();
 };
 

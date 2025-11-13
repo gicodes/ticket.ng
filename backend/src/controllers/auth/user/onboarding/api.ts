@@ -1,8 +1,6 @@
-import crypto from "crypto";
 import Redis from "../../../../lib/redis";
 import { Request, Response } from "express";
 import { prisma } from "../../../../lib/prisma";;
-import { signAccess } from "../../../../lib/jwt";
 import { sendEmail } from "../../../../lib/sendEmail";
 import { hashPassword } from "../../../../lib/crypto";
 import { composeEmailTemplate } from "../../../../lib/emailTemp"
@@ -71,35 +69,6 @@ export const onboarding = async (req: Request, res: Response) => {
           website: website || null,
           bio: bio || null,
         },
-      });
-
-      const accessToken = signAccess({ sub: user.id, role: user.role });
-      const refreshToken = crypto.randomBytes(32).toString("hex");
-      const hashedRefresh = await hashPassword(refreshToken);
-
-      const refreshExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
-
-      await prisma.refreshToken.create({
-        data: {
-          jti: crypto.randomUUID(),
-          hashedToken: hashedRefresh,
-          expiresAt: refreshExpiresAt,
-          userId: user.id,
-        },
-      });
-
-      res.cookie("accessToken", accessToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 15 * 60 * 1000, // 15 min
-      });
-
-      res.cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
 
       await sendEmail({

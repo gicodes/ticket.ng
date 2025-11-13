@@ -17,19 +17,6 @@ export const getStatusColor = (status: string) => {
   }
 };
 
-export const getPriorityColor = (priority: string) => {
-  switch (priority) {
-    case 'HIGH':
-      return { bg: '#ff7043', color: 'white' };
-    case 'MEDIUM':
-      return { bg: '#fbc02d', color: 'black' };
-    case 'LOW':
-      return { bg: '#ffa50066', color: 'black' };
-    default:
-      return { bg: 'var(--surface-1)', color: 'var(--foreground)' };
-  }
-};
-
 export const priorityColor = (p: string) => {
   switch (p?.toUpperCase()) {
     case 'URGENT': return '#b00020';

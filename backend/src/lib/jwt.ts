@@ -35,11 +35,11 @@ export const cookieOptions = () => ({
 export const setRefreshCookie = (res: any, token: string) => {
   const isProd = process.env.NODE_ENV === "production";
 
-  res.cookie("refresh_token", token, {
+  res.cookie("refreshToken", token, {
     httpOnly: true,
     secure: isProd ? true : false,                     
-    sameSite: "none",  
+    sameSite: isProd ? "none" : "lax",  
     path: "/",                          
-    maxAge: 7 * 24 * 60 * 60 * 1000,   
+    maxAge: 30 * 24 * 60 * 60 * 1000,   
   });
 };
