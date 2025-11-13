@@ -98,35 +98,42 @@ const PlannerToolbar: React.FC<PlannerToolbarProps> = ({
         maxWidth={300}
         mx={{xs: 'auto', sm: 0}}
         justifyContent={'space-between'}
-        sx={{ borderRadius: 999, pl: 1, boxShadow: 2, border: '1px solid var(--secondary)' }} 
+        sx={{ 
+          borderRadius: 999, pl: 0.5, 
+          boxShadow: 2, 
+          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+          
+        }} 
       >
-        <Tooltip title="Calendar View">
+        <Tooltip title="Calendar shows task and tickets with a due date">
           <IconButton
             onClick={() => setView('calendar')}
             color={view === 'calendar' ? 'success' : 'inherit'}
-            sx={{ p: 1.5, background: 'var(--surface-1)'}}
+            sx={{p: 1.5, background: view === 'calendar' ?'rgba(255, 255, 255, 0.05)' : 'none'}}
           >
             <Calendar size={20} />
           </IconButton>
         </Tooltip>
 
-        <Tooltip title="List View">
+        <Tooltip title="List all task and tickets created on this workspace">
           <IconButton
             onClick={() => setView('list')}
             color={view === 'list' ? 'success' : 'inherit'}
-            sx={{ p: 1.5, background: 'var(--surface-1)'}}
+            sx={{p: 1.5, background: view === 'list' ? 'rgba(255, 255, 255, 0.25)' : 'none'}}
           >
             <List size={20} />
           </IconButton>
         </Tooltip>
 
-        <Typography
-          component={'button'}
-          onClick={onOpenCreate}
-          className={styles.btnPrimary}
-        >
-          <FaPlusCircle />&nbsp;ADD EVENT
-        </Typography>
+        <Tooltip title="Create task as event or meeting and set date & time">
+          <Typography
+            component={'button'}
+            onClick={onOpenCreate}
+            className={styles.btnPrimary}
+          >
+            <FaPlusCircle />&nbsp;ADD EVENT
+          </Typography>
+        </Tooltip>
       </Stack>
     </Box>
   );

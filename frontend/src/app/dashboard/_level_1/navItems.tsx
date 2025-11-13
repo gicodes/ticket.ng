@@ -1,29 +1,29 @@
 import { AuthUser } from "@/providers/auth";
 import { CgMenuGridR } from "react-icons/cg";
-import { RiRobot2Fill } from "react-icons/ri";
 import { SiAwsorganizations } from "react-icons/si";
 import { GrResources, GrUpdate } from "react-icons/gr";
 import { GiHelp, GiThreeFriends } from 'react-icons/gi';
-import { Logout, CorporateFare, WorkSharp } from '@mui/icons-material';
+import { RiRegisteredLine, RiRobot2Fill } from "react-icons/ri";
 import { Avatar, Box, Typography, Badge } from '@mui/material';
+import { Logout, CorporateFare, WorkSharp } from '@mui/icons-material';
 import { BsFillCreditCard2BackFill, BsCalendar2Date } from "react-icons/bs";
-import { FaUsers, FaDonate, FaVideo, FaHome, FaCircle } from 'react-icons/fa';
-import { FcSerialTasks, FcDocument, FcBearish, FcDataEncryption } from "react-icons/fc";
-import { MdOutlineFamilyRestroom, MdCategory, MdSettings, MdPaid, MdCampaign } from "react-icons/md";
+import { MdCategory, MdSettings, MdPaid, MdCampaign, MdQuestionAnswer } from "react-icons/md";
+import { FaUsers, FaDonate, FaVideo, FaHome, FaCircle, FaBlog } from 'react-icons/fa';
+import { FcInvite, FcSerialTasks, FcDocument, FcBearish, FcDataEncryption, FcAnswers } from "react-icons/fc";
 
 export const NAV_ITEMS = [
   { label: 'Tickets', path: '/dashboard/', icon: <FcSerialTasks/> },
   { label: 'AI assistant', path: '/dashboard/ai', icon: <RiRobot2Fill />, released: false, premium: true}, // new
   { label: 'Planner', path: '/dashboard/planner', icon: <BsCalendar2Date/>},
-  { label: 'Refer & Invites', path: '/dashboard/invite', icon: <MdOutlineFamilyRestroom /> },
-  { label: 'Subscriptions', path: '/dashboard/subscription', icon: <BsFillCreditCard2BackFill /> },
-  { label: 'Marketing', path: '/dashboard/marketing', icon: <MdCampaign /> },
-  { label: 'Teams', path: '/dashboard/teams', icon: <SiAwsorganizations />},
+  { label: 'Team', path: '/dashboard/team', icon: <SiAwsorganizations />},
+  { label: 'Subscription', path: '/dashboard/subscription', icon: <BsFillCreditCard2BackFill /> },
   { label: "Metrics", path: '/dashboard/metrics', icon: <FcDataEncryption /> },
+  { label: 'Marketing', path: '/dashboard/marketing', icon: <MdCampaign /> },
+  { label: 'Invite', path: '/dashboard/invite', icon: <FcInvite /> },
   { label: 'Settings', path: '/dashboard/settings', icon: <MdSettings /> }, 
-  { label: 'Products', path: '/product', icon: <MdCategory /> },
-  { label: 'Legal', path: '/legal', icon: <FcDocument />},
-  { label: 'More', path: '', icon: <CgMenuGridR /> }, // more includes Docs, FAQ, blog, community and register new account
+  { label: 'Products', path: '/product', icon: <MdCategory />, external: true },
+  { label: 'Legal', path: '/legal', icon: <FcDocument />, external: true},
+  { label: 'More', path: '#', icon: <CgMenuGridR />, more: true }, // more includes Docs, FAQ, blog, community and register new account
   { label: 'All Users', path: '/dashboard/users', icon: <FaUsers /> },
   { label: 'Careers', path: '/dashboard/careers', icon: <WorkSharp />},
   { label: 'Partners', path: '/dashboard/partners', icon: <GiThreeFriends />},
@@ -32,23 +32,30 @@ export const NAV_ITEMS = [
   { label: 'System Logs', path: '/dashboard/logs', icon: <FcBearish /> },
 ];
 
+export const MORE_NAV_ITEMS = [
+  { label: 'Documentation', path: '/resources/docs', icon: <GrResources />, external: true},
+  { label: 'FAQ', path: '/resources/faq', icon: <MdQuestionAnswer />, external: true},
+  { label: 'Blog', path: '/resources/blog', icon: <FaBlog />, external: true},
+  { label: "New Account", path:'/auth/register', icon: <RiRegisteredLine />, external: true}, 
+]
+
 export const getFilteredNav = (user: AuthUser | null) => {
   if (!user) {
     const allowed = [
       'Tickets', 'AI assistant', 'Planner', 'Products',
-      'Refer & Invites', 'Legal', 'Settings'
+      'Invite', 'Legal', 'Settings'
     ];
     return NAV_ITEMS.filter(item => allowed.includes(item.label));
   }
 
   const allowed = [
     'Tickets', 'AI assistant', 'Planner', 'Products',
-    'Refer & Invites', 'Legal', 'Subscriptions', 'Settings',
+    'Invite', 'Legal', 'Subscription', 'Settings',
     'More'
   ];
 
   if (user?.partner) allowed.push('Marketing');
-  if (user?.userType==="BUSINESS") allowed.push('Teams', 'Metrics'); 
+  if (user?.userType==="BUSINESS") allowed.push('Team', 'Metrics'); 
   if (user?.role === 'ADMIN') {
     return NAV_ITEMS;
   }
